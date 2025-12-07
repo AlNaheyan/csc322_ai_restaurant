@@ -1,6 +1,7 @@
 # AI-Enabled Restaurant Order & Delivery System - Implementation Plan
 
 ## Table of Contents
+
 1. [Technology Stack](#technology-stack)
 2. [Project Structure](#project-structure)
 3. [Database Schema Design](#database-schema-design)
@@ -17,19 +18,21 @@
 ## 1. Technology Stack
 
 ### Backend
+
 - **Framework**: Node.js with Express.js (OR Python with FastAPI)
-  - *Recommendation*: Node.js for better real-time capabilities (bidding, notifications)
+  - _Recommendation_: Node.js for better real-time capabilities (bidding, notifications)
 - **Database**: PostgreSQL (better for complex queries and transactions)
 - **ORM**: Sequelize (Node.js) or Prisma (modern alternative)
 - **Authentication**: JWT (JSON Web Tokens) + bcrypt for password hashing
 - **Real-time**: Socket.io for delivery bidding and notifications
-- **LLM Integration**: 
+- **LLM Integration**:
   - Ollama (local) with llama2 or mistral models
   - Hugging Face Inference API as fallback
 - **Task Scheduler**: node-cron for daily performance evaluations
 - **File Upload**: Multer (for dish images)
 
 ### Frontend
+
 - **Framework**: React 18+ with TypeScript
 - **State Management**: Redux Toolkit or Zustand
 - **Routing**: React Router v6
@@ -40,6 +43,7 @@
 - **Charts**: Recharts (for manager analytics)
 
 ### DevOps & Tools
+
 - **Version Control**: Git + GitHub
 - **Package Manager**: npm or pnpm
 - **API Testing**: Postman/Thunder Client
@@ -79,6 +83,7 @@ restaurant-system/
 │   │   │   ├── authController.js
 │   │   │   ├── customerController.js
 │   │   │   ├── menuController.js
+│   │   │   ├── chefController.js
 │   │   │   ├── orderController.js
 │   │   │   ├── deliveryController.js
 │   │   │   ├── ratingController.js
@@ -91,6 +96,7 @@ restaurant-system/
 │   │   │   ├── customerService.js
 │   │   │   ├── vipService.js
 │   │   │   ├── orderService.js
+│   │   │   ├── chefService.js
 │   │   │   ├── deliveryService.js
 │   │   │   ├── ratingService.js
 │   │   │   ├── complaintService.js
@@ -107,6 +113,7 @@ restaurant-system/
 │   │   │   ├── auth.js
 │   │   │   ├── customers.js
 │   │   │   ├── menu.js
+│   │   │   ├── chef.js
 │   │   │   ├── orders.js
 │   │   │   ├── delivery.js
 │   │   │   ├── ratings.js
@@ -214,6 +221,7 @@ restaurant-system/
 ### 3.1 Core Tables
 
 #### Users Table (Base for all user types)
+
 ```sql
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
@@ -236,6 +244,7 @@ CREATE INDEX idx_users_role ON users(role);
 ```
 
 #### Customers Table
+
 ```sql
 CREATE TABLE customers (
     customer_id SERIAL PRIMARY KEY,
@@ -259,6 +268,7 @@ CREATE INDEX idx_customers_is_vip ON customers(is_vip);
 ```
 
 #### Employees Table
+
 ```sql
 CREATE TABLE employees (
     employee_id SERIAL PRIMARY KEY,
@@ -273,6 +283,8 @@ CREATE TABLE employees (
     hire_date DATE NOT NULL,
     termination_date DATE,
     is_available BOOLEAN DEFAULT true, -- For delivery people
+    profile_picture_url VARCHAR(500), -- Chef/delivery person profile photo
+    bio TEXT, -- Chef specialty description
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -282,6 +294,7 @@ CREATE INDEX idx_employees_type ON employees(employee_type);
 ```
 
 #### Menu Items Table
+
 ```sql
 CREATE TABLE menu_items (
     item_id SERIAL PRIMARY KEY,
@@ -307,6 +320,7 @@ CREATE INDEX idx_menu_items_available ON menu_items(is_available);
 ### 3.2 Order Management Tables
 
 #### Orders Table
+
 ```sql
 CREATE TABLE orders (
     order_id SERIAL PRIMARY KEY,
@@ -333,6 +347,7 @@ CREATE INDEX idx_orders_delivery_person ON orders(assigned_delivery_person);
 ```
 
 #### Order Items Table
+
 ```sql
 CREATE TABLE order_items (
     order_item_id SERIAL PRIMARY KEY,
@@ -348,6 +363,7 @@ CREATE INDEX idx_order_items_item_id ON order_items(item_id);
 ```
 
 #### Delivery Bids Table
+
 ```sql
 CREATE TABLE delivery_bids (
     bid_id SERIAL PRIMARY KEY,
@@ -365,6 +381,7 @@ CREATE INDEX idx_delivery_bids_delivery_person ON delivery_bids(delivery_person_
 ```
 
 #### Manager Memos Table (for bid overrides)
+
 ```sql
 CREATE TABLE manager_memos (
     memo_id SERIAL PRIMARY KEY,
@@ -379,6 +396,7 @@ CREATE TABLE manager_memos (
 ### 3.3 Rating System Tables
 
 #### Ratings Table
+
 ```sql
 CREATE TABLE ratings (
     rating_id SERIAL PRIMARY KEY,
@@ -400,6 +418,7 @@ CREATE INDEX idx_ratings_customer ON ratings(customer_id);
 ### 3.4 Reputation System Tables
 
 #### Complaints Table
+
 ```sql
 CREATE TABLE complaints (
     complaint_id SERIAL PRIMARY KEY,
@@ -428,6 +447,7 @@ CREATE INDEX idx_complaints_status ON complaints(status);
 ```
 
 #### Warnings Table
+
 ```sql
 CREATE TABLE warnings (
     warning_id SERIAL PRIMARY KEY,
@@ -446,6 +466,7 @@ CREATE INDEX idx_warnings_active ON warnings(is_active);
 ### 3.5 Transaction Tables
 
 #### Transactions Table
+
 ```sql
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
@@ -466,6 +487,7 @@ CREATE INDEX idx_transactions_type ON transactions(transaction_type);
 ### 3.6 AI/Knowledge Base Tables
 
 #### Knowledge Base Articles Table
+
 ```sql
 CREATE TABLE knowledge_base_articles (
     article_id SERIAL PRIMARY KEY,
@@ -485,6 +507,7 @@ CREATE INDEX idx_kb_articles_active ON knowledge_base_articles(is_active);
 ```
 
 #### KB Article Ratings Table
+
 ```sql
 CREATE TABLE kb_ratings (
     kb_rating_id SERIAL PRIMARY KEY,
@@ -499,6 +522,7 @@ CREATE INDEX idx_kb_ratings_article ON kb_ratings(article_id);
 ```
 
 #### Chat Sessions Table
+
 ```sql
 CREATE TABLE chat_sessions (
     session_id SERIAL PRIMARY KEY,
@@ -509,6 +533,7 @@ CREATE TABLE chat_sessions (
 ```
 
 #### Chat Messages Table
+
 ```sql
 CREATE TABLE chat_messages (
     message_id SERIAL PRIMARY KEY,
@@ -526,6 +551,7 @@ CREATE INDEX idx_chat_messages_session ON chat_messages(session_id);
 ### 3.7 Discussion Forum Tables
 
 #### Discussion Topics Table
+
 ```sql
 CREATE TABLE discussion_topics (
     topic_id SERIAL PRIMARY KEY,
@@ -543,6 +569,7 @@ CREATE INDEX idx_discussion_topics_category ON discussion_topics(category);
 ```
 
 #### Discussion Posts Table
+
 ```sql
 CREATE TABLE discussion_posts (
     post_id SERIAL PRIMARY KEY,
@@ -550,17 +577,20 @@ CREATE TABLE discussion_posts (
     author_id INTEGER REFERENCES users(user_id),
     content TEXT NOT NULL,
     is_reported BOOLEAN DEFAULT false,
+    complaint_id INTEGER REFERENCES complaints(complaint_id), -- Link to complaint if reported
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_discussion_posts_topic ON discussion_posts(topic_id);
 CREATE INDEX idx_discussion_posts_author ON discussion_posts(author_id);
+CREATE INDEX idx_discussion_posts_complaint ON discussion_posts(complaint_id);
 ```
 
 ### 3.8 Performance Tracking Tables
 
 #### Performance History Table
+
 ```sql
 CREATE TABLE performance_history (
     history_id SERIAL PRIMARY KEY,
@@ -586,6 +616,7 @@ CREATE INDEX idx_performance_history_employee ON performance_history(employee_id
 ### 4.1 Service Layer Design
 
 #### Auth Service (`authService.js`)
+
 ```javascript
 class AuthService {
   async registerVisitor(userData)
@@ -598,6 +629,7 @@ class AuthService {
 ```
 
 #### Customer Service (`customerService.js`)
+
 ```javascript
 class CustomerService {
   async getCustomerProfile(userId)
@@ -607,10 +639,12 @@ class CustomerService {
   async getTransactionHistory(customerId, filters)
   async getOrderHistory(customerId, filters)
   async getWarnings(customerId)
+  async voluntaryCloseAccount(customerId)
 }
 ```
 
 #### VIP Service (`vipService.js`)
+
 ```javascript
 class VIPService {
   async checkVIPEligibility(customerId)
@@ -623,6 +657,7 @@ class VIPService {
 ```
 
 #### Order Service (`orderService.js`)
+
 ```javascript
 class OrderService {
   async createOrder(customerId, orderData)
@@ -637,6 +672,7 @@ class OrderService {
 ```
 
 #### Delivery Service (`deliveryService.js`)
+
 ```javascript
 class DeliveryService {
   async notifyAvailableDeliveryPeople(orderId)
@@ -645,11 +681,27 @@ class DeliveryService {
   async assignDelivery(orderId, deliveryPersonId, managerId, justification)
   async updateDeliveryStatus(orderId, status)
   async getDeliveryPersonOrders(deliveryPersonId, filters)
-  async trackDelivery(orderId) // Optional GPS feature
+  async trackDelivery(orderId)
+}
+```
+
+#### Chef Service (`chefService.js`)
+
+```javascript
+class ChefService {
+  async createMenuItem(chefId, itemData)
+  async updateMenuItem(chefId, itemId, updates)
+  async deleteMenuItem(chefId, itemId)
+  async getMyMenuItems(chefId)
+  async toggleItemAvailability(chefId, itemId)
+  async getChefDashboard(chefId)
+  async getOrdersContainingMyDishes(chefId, filters)
+  async getPerformanceStats(chefId)
 }
 ```
 
 #### Rating Service (`ratingService.js`)
+
 ```javascript
 class RatingService {
   async submitRating(customerId, orderId, ratingData)
@@ -662,9 +714,11 @@ class RatingService {
 ```
 
 #### Complaint Service (`complaintService.js`)
+
 ```javascript
 class ComplaintService {
   async fileComplaint(filerId, complaintData)
+  async fileComplaintFromDiscussionPost(postId, reporterId, reason)
   async getComplaint(complaintId)
   async getPendingComplaints(managerId)
   async reviewComplaint(complaintId, managerId, decision)
@@ -676,6 +730,7 @@ class ComplaintService {
 ```
 
 #### Performance Service (`performanceService.js`)
+
 ```javascript
 class PerformanceService {
   async evaluateEmployee(employeeId)
@@ -690,6 +745,7 @@ class PerformanceService {
 ```
 
 #### Knowledge Base Service (`knowledgeBaseService.js`)
+
 ```javascript
 class KnowledgeBaseService {
   async searchKnowledgeBase(query)
@@ -704,6 +760,7 @@ class KnowledgeBaseService {
 ```
 
 #### LLM Service (`llmService.js`)
+
 ```javascript
 class LLMService {
   async queryLLM(question, context)
@@ -715,6 +772,7 @@ class LLMService {
 ```
 
 #### Notification Service (`notificationService.js`)
+
 ```javascript
 class NotificationService {
   async sendEmail(userId, subject, body)
@@ -731,6 +789,7 @@ class NotificationService {
 ### 4.2 API Endpoints Structure
 
 #### Authentication Routes (`/api/auth`)
+
 ```
 POST   /auth/register              - Register new visitor
 POST   /auth/login                 - Login user
@@ -741,6 +800,7 @@ POST   /auth/forgot-password       - Request password reset
 ```
 
 #### Customer Routes (`/api/customers`)
+
 ```
 GET    /customers/me               - Get own profile
 PUT    /customers/me               - Update own profile
@@ -749,9 +809,11 @@ POST   /customers/me/deposit       - Add deposit
 GET    /customers/me/transactions  - Get transaction history
 GET    /customers/me/orders        - Get order history
 GET    /customers/me/warnings      - Get warnings
+POST   /customers/me/close-account - Voluntarily close account with refund
 ```
 
 #### Menu Routes (`/api/menu`)
+
 ```
 GET    /menu                       - Get all menu items (with filters)
 GET    /menu/:id                   - Get single menu item
@@ -761,7 +823,20 @@ GET    /menu/top-rated             - Get highest rated items
 GET    /menu/vip-exclusive         - Get VIP-only items (auth required)
 ```
 
+#### Chef Routes (`/api/chef`)
+
+```
+POST   /chef/menu                  - Create new menu item (chef only)
+PUT    /chef/menu/:id              - Update own menu item (chef only)
+DELETE /chef/menu/:id              - Remove own menu item (chef only)
+GET    /chef/my-menu               - Get chef's own menu items
+PATCH  /chef/menu/:id/availability - Toggle item availability
+GET    /chef/dashboard             - Get chef performance stats
+GET    /chef/orders                - Get orders containing chef's dishes
+```
+
 #### Order Routes (`/api/orders`)
+
 ```
 POST   /orders                     - Create new order
 GET    /orders/:id                 - Get order details
@@ -771,6 +846,7 @@ POST   /orders/:id/rate            - Rate food and delivery
 ```
 
 #### Delivery Routes (`/api/delivery`)
+
 ```
 GET    /delivery/available         - Get available orders for bidding
 POST   /delivery/bid               - Submit delivery bid
@@ -780,6 +856,7 @@ PUT    /delivery/:id/status        - Update delivery status
 ```
 
 #### Manager Routes (`/api/manager`)
+
 ```
 GET    /manager/registrations      - Get pending registrations
 PUT    /manager/registrations/:id  - Approve/reject registration
@@ -794,6 +871,7 @@ PUT    /manager/kb-flags/:id       - Review flagged article
 ```
 
 #### Chat Routes (`/api/chat`)
+
 ```
 POST   /chat/ask                   - Ask question (KB + LLM)
 GET    /chat/history               - Get chat history
@@ -801,6 +879,7 @@ POST   /chat/rate-answer           - Rate KB answer
 ```
 
 #### Discussion Routes (`/api/discussions`)
+
 ```
 GET    /discussions                - Get all topics
 POST   /discussions                - Create new topic
@@ -811,6 +890,7 @@ POST   /discussions/posts/:id/report - Report inappropriate post
 ```
 
 #### Rating Routes (`/api/ratings`)
+
 ```
 POST   /ratings                    - Submit rating
 GET    /ratings/chef/:id           - Get chef ratings
@@ -819,6 +899,7 @@ GET    /ratings/item/:id           - Get menu item ratings
 ```
 
 #### Complaint Routes (`/api/complaints`)
+
 ```
 POST   /complaints                 - File complaint/compliment
 GET    /complaints/:id             - Get complaint details
@@ -829,35 +910,37 @@ POST   /complaints/:id/dispute     - Dispute complaint
 ### 4.3 Middleware Structure
 
 #### Authentication Middleware
+
 ```javascript
 // middleware/auth.js
 const authenticate = async (req, res, next) => {
-  const token = req.headers.authorization?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No token provided' });
-  
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "No token provided" });
+
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = await User.findByPk(decoded.userId);
     if (!req.user || !req.user.is_active) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return res.status(401).json({ error: "Invalid token" });
     }
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
+    res.status(401).json({ error: "Invalid token" });
   }
 };
 ```
 
 #### Role-Based Access Control
+
 ```javascript
 // middleware/roleCheck.js
 const requireRole = (...roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ error: "Authentication required" });
     }
     if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
+      return res.status(403).json({ error: "Insufficient permissions" });
     }
     next();
   };
@@ -865,6 +948,7 @@ const requireRole = (...roles) => {
 ```
 
 #### Request Validation
+
 ```javascript
 // middleware/validation.js
 const validateRequest = (schema) => {
@@ -885,6 +969,7 @@ const validateRequest = (schema) => {
 ### 5.1 State Management (Redux Toolkit)
 
 #### Auth Slice
+
 ```typescript
 // store/slices/authSlice.ts
 interface AuthState {
@@ -895,17 +980,24 @@ interface AuthState {
 }
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
-    loginSuccess: (state, action) => { /* ... */ },
-    logout: (state) => { /* ... */ },
-    updateProfile: (state, action) => { /* ... */ },
+    loginSuccess: (state, action) => {
+      /* ... */
+    },
+    logout: (state) => {
+      /* ... */
+    },
+    updateProfile: (state, action) => {
+      /* ... */
+    },
   },
 });
 ```
 
 #### Menu Slice
+
 ```typescript
 // store/slices/menuSlice.ts
 interface MenuState {
@@ -917,6 +1009,7 @@ interface MenuState {
 ```
 
 #### Cart Slice
+
 ```typescript
 // store/slices/cartSlice.ts
 interface CartState {
@@ -927,14 +1020,24 @@ interface CartState {
 }
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState,
   reducers: {
-    addToCart: (state, action) => { /* ... */ },
-    removeFromCart: (state, action) => { /* ... */ },
-    updateQuantity: (state, action) => { /* ... */ },
-    clearCart: (state) => { /* ... */ },
-    calculateTotal: (state) => { /* ... */ },
+    addToCart: (state, action) => {
+      /* ... */
+    },
+    removeFromCart: (state, action) => {
+      /* ... */
+    },
+    updateQuantity: (state, action) => {
+      /* ... */
+    },
+    clearCart: (state) => {
+      /* ... */
+    },
+    calculateTotal: (state) => {
+      /* ... */
+    },
   },
 });
 ```
@@ -942,21 +1045,23 @@ const cartSlice = createSlice({
 ### 5.2 Component Structure
 
 #### Protected Routes
+
 ```typescript
 // components/auth/ProtectedRoute.tsx
 const ProtectedRoute = ({ allowedRoles, children }) => {
   const { user, isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated) return <Navigate to="/login" />;
   if (allowedRoles && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" />;
   }
-  
+
   return children;
 };
 ```
 
 #### Menu Components
+
 ```typescript
 // components/menu/MenuList.tsx
 const MenuList = () => {
@@ -969,6 +1074,7 @@ const MenuList = () => {
 ```
 
 #### Chat Component
+
 ```typescript
 // components/chat/ChatBox.tsx
 const ChatBox = () => {
@@ -982,6 +1088,7 @@ const ChatBox = () => {
 ### 5.3 API Integration
 
 #### Axios Configuration
+
 ```typescript
 // services/api.ts
 const api = axios.create({
@@ -991,7 +1098,7 @@ const api = axios.create({
 
 // Request interceptor (add auth token)
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -1013,26 +1120,27 @@ api.interceptors.response.use(
 ### 5.4 Socket.io Integration
 
 #### Socket Service
+
 ```typescript
 // services/socket.ts
-import io from 'socket.io-client';
+import io from "socket.io-client";
 
 class SocketService {
   socket: Socket;
 
   connect(userId: number) {
     this.socket = io(process.env.REACT_APP_SOCKET_URL, {
-      auth: { userId }
+      auth: { userId },
     });
-    
-    this.socket.on('new-order', this.handleNewOrder);
-    this.socket.on('bid-update', this.handleBidUpdate);
-    this.socket.on('delivery-assigned', this.handleDeliveryAssignment);
-    this.socket.on('status-update', this.handleStatusUpdate);
+
+    this.socket.on("new-order", this.handleNewOrder);
+    this.socket.on("bid-update", this.handleBidUpdate);
+    this.socket.on("delivery-assigned", this.handleDeliveryAssignment);
+    this.socket.on("status-update", this.handleStatusUpdate);
   }
 
   submitBid(orderId: number, bidData: any) {
-    this.socket.emit('submit-bid', { orderId, bidData });
+    this.socket.emit("submit-bid", { orderId, bidData });
   }
 
   disconnect() {
@@ -1048,12 +1156,13 @@ class SocketService {
 ### 6.1 Knowledge Base Search
 
 #### Search Algorithm
+
 ```javascript
 // services/knowledgeBaseService.js
 async searchKnowledgeBase(query) {
   // 1. Tokenize and clean query
   const cleanQuery = this.cleanQuery(query);
-  
+
   // 2. Full-text search in KB articles
   const results = await KnowledgeBaseArticle.findAll({
     where: {
@@ -1066,16 +1175,16 @@ async searchKnowledgeBase(query) {
     limit: 5,
     order: [['created_at', 'DESC']]
   });
-  
+
   // 3. Rank by relevance (simple scoring)
   const scoredResults = results.map(article => ({
     article,
     score: this.calculateRelevanceScore(query, article)
   }));
-  
+
   // 4. Return top result if score > threshold
   const topResult = scoredResults.sort((a, b) => b.score - a.score)[0];
-  
+
   if (topResult && topResult.score > 0.6) {
     return {
       found: true,
@@ -1084,7 +1193,7 @@ async searchKnowledgeBase(query) {
       answer: topResult.article.content
     };
   }
-  
+
   return { found: false };
 }
 ```
@@ -1092,6 +1201,7 @@ async searchKnowledgeBase(query) {
 ### 6.2 LLM Integration
 
 #### Ollama Integration
+
 ```javascript
 // services/llmService.js
 async queryOllama(question) {
@@ -1105,7 +1215,7 @@ async queryOllama(question) {
         max_tokens: 500
       }
     });
-    
+
     return {
       success: true,
       answer: response.data.response,
@@ -1119,6 +1229,7 @@ async queryOllama(question) {
 ```
 
 #### Hugging Face Fallback
+
 ```javascript
 async queryHuggingFace(question) {
   try {
@@ -1131,7 +1242,7 @@ async queryHuggingFace(question) {
         }
       }
     );
-    
+
     return {
       success: true,
       answer: response.data[0].generated_text,
@@ -1145,11 +1256,12 @@ async queryHuggingFace(question) {
 ```
 
 #### Unified Query Method
+
 ```javascript
 async generateResponse(question) {
   // 1. Try knowledge base first
   const kbResult = await knowledgeBaseService.searchKnowledgeBase(question);
-  
+
   if (kbResult.found) {
     return {
       answer: kbResult.answer,
@@ -1158,7 +1270,7 @@ async generateResponse(question) {
       requiresRating: true
     };
   }
-  
+
   // 2. Try Ollama
   const ollamaResult = await this.queryOllama(question);
   if (ollamaResult.success) {
@@ -1168,7 +1280,7 @@ async generateResponse(question) {
       requiresRating: false
     };
   }
-  
+
   // 3. Fallback to Hugging Face
   const hfResult = await this.queryHuggingFace(question);
   if (hfResult.success) {
@@ -1178,7 +1290,7 @@ async generateResponse(question) {
       requiresRating: false
     };
   }
-  
+
   // 4. All failed
   return {
     answer: 'I apologize, but I am unable to answer your question at this time. Please contact our manager for assistance.',
@@ -1190,9 +1302,10 @@ async generateResponse(question) {
 ```
 
 #### Context-Aware Prompts
+
 ```javascript
 buildPrompt(question) {
-  const systemContext = `You are a helpful assistant for a restaurant. 
+  const systemContext = `You are a helpful assistant for a restaurant.
 You can answer questions about our menu, restaurant policies, and services.
 Be concise and friendly. If you don't know the answer, say so.`;
 
@@ -1205,19 +1318,23 @@ Be concise and friendly. If you don't know the answer, say so.`;
 ## 7. Implementation Phases
 
 ### Phase 1: Foundation (Week 1-2)
+
 **Goal**: Set up project infrastructure and core functionality
 
 **Backend Tasks**:
+
 - [ ] Initialize Node.js/Express project
 - [ ] Set up PostgreSQL database
 - [ ] Create database schema with migrations
+- [ ] Add employee profile_picture_url and bio fields
 - [ ] Implement User, Customer, Employee models
 - [ ] Build authentication system (JWT)
 - [ ] Create basic auth routes (register, login, logout)
-- [ ] Set up middleware (auth, error handling)
-- [ ] Database seeding script with test data
+- [ ] Set up middleware (auth, error handling, role checking)
+- [ ] Database seeding script with test data including chef photos
 
 **Frontend Tasks**:
+
 - [ ] Initialize React project with Vite
 - [ ] Set up React Router
 - [ ] Configure Redux Toolkit
@@ -1228,17 +1345,23 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Basic navigation/layout components
 
 **Deliverables**:
+
 - Working authentication system
 - Database with seed data
 - Basic routing on frontend
 - Auth token management
 
 ### Phase 2: Menu & Ordering (Week 3-4)
+
 **Goal**: Implement menu browsing and order placement
 
 **Backend Tasks**:
+
 - [ ] MenuItem model and CRUD operations
 - [ ] Menu routes with filtering/sorting
+- [ ] Chef menu management routes (POST/PUT/DELETE)
+- [ ] Chef service for managing own menu items
+- [ ] Chef dashboard endpoint
 - [ ] Order model and OrderItem model
 - [ ] Order creation logic
 - [ ] VIP discount calculation
@@ -1247,16 +1370,21 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Free delivery tracking for VIPs
 
 **Frontend Tasks**:
+
 - [ ] Menu listing page with filters
 - [ ] MenuItem detail view
+- [ ] Display top-rated chef photos on homepage
 - [ ] Shopping cart functionality
 - [ ] Cart slice in Redux
 - [ ] Checkout page
 - [ ] Deposit management page
 - [ ] Order history page
 - [ ] Personalized recommendations
+- [ ] Chef dashboard UI for managing menu items
+- [ ] Customer account closure option
 
 **Deliverables**:
+
 - Functional menu browsing
 - Complete order flow
 - Cart management
@@ -1264,9 +1392,11 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - Deposit system
 
 ### Phase 3: Delivery System (Week 5)
+
 **Goal**: Implement delivery bidding and assignment
 
 **Backend Tasks**:
+
 - [ ] DeliveryBid model
 - [ ] Socket.io setup for real-time bidding
 - [ ] Delivery notification system
@@ -1276,6 +1406,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] ManagerMemo model for overrides
 
 **Frontend Tasks**:
+
 - [ ] Delivery person dashboard
 - [ ] Bidding interface with Socket.io
 - [ ] Manager delivery assignment UI
@@ -1284,14 +1415,17 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Order status updates for customers
 
 **Deliverables**:
+
 - Real-time delivery bidding
 - Manager assignment interface
 - Status tracking system
 
 ### Phase 4: Ratings & Reputation (Week 6)
+
 **Goal**: Implement rating and complaint systems
 
 **Backend Tasks**:
+
 - [ ] Rating model and submission
 - [ ] Average rating calculation
 - [ ] VIP rating weight (2x)
@@ -1303,6 +1437,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Automated consequence application
 
 **Frontend Tasks**:
+
 - [ ] Rating submission forms
 - [ ] Complaint filing interface
 - [ ] Manager complaint review dashboard
@@ -1311,15 +1446,18 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Rating display on menu/employees
 
 **Deliverables**:
+
 - Complete rating system
 - Complaint management
 - Warning tracking
 - Reputation scoring
 
 ### Phase 5: Performance & VIP Management (Week 7)
+
 **Goal**: Implement automated performance evaluation and VIP system
 
 **Backend Tasks**:
+
 - [ ] Performance evaluation service
 - [ ] Cron job for daily evaluation
 - [ ] VIP eligibility checking
@@ -1330,6 +1468,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Blacklist management
 
 **Frontend Tasks**:
+
 - [ ] Manager performance review dashboard
 - [ ] VIP upgrade notifications
 - [ ] Performance history view
@@ -1337,15 +1476,18 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Salary adjustment UI
 
 **Deliverables**:
+
 - Automated performance evaluation
 - VIP upgrade system
 - Employee management
 - Blacklist functionality
 
 ### Phase 6: AI/Chat System (Week 8)
+
 **Goal**: Implement knowledge base and LLM integration
 
 **Backend Tasks**:
+
 - [ ] KnowledgeBaseArticle model
 - [ ] KB search algorithm
 - [ ] Ollama integration
@@ -1356,6 +1498,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Manager KB review
 
 **Frontend Tasks**:
+
 - [ ] Chat interface component
 - [ ] KB article submission
 - [ ] Answer rating UI
@@ -1364,23 +1507,28 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Flagged article review
 
 **Deliverables**:
+
 - Working chatbot with KB
 - LLM fallback system
 - KB contribution system
 - Article flagging and review
 
 ### Phase 7: Discussion Forum (Week 9)
+
 **Goal**: Implement community discussion features
 
 **Backend Tasks**:
+
 - [ ] DiscussionTopic model
-- [ ] DiscussionPost model
+- [ ] DiscussionPost model with complaint_id reference
 - [ ] Topic creation and management
 - [ ] Post reporting system
+- [ ] Link discussion post reports to Complaint system
 - [ ] Topic locking (manager)
-- [ ] Complaint filing from forum
+- [ ] fileComplaintFromDiscussionPost service method
 
 **Frontend Tasks**:
+
 - [ ] Discussion list page
 - [ ] Topic detail with posts
 - [ ] Post creation interface
@@ -1388,14 +1536,17 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Manager moderation tools
 
 **Deliverables**:
+
 - Discussion forum
 - Moderation system
 - Integration with complaints
 
 ### Phase 8: Manager Dashboard & Analytics (Week 10)
+
 **Goal**: Build comprehensive manager tools
 
 **Backend Tasks**:
+
 - [ ] Registration approval endpoints
 - [ ] Analytics/reporting endpoints
 - [ ] Customer statistics
@@ -1404,6 +1555,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Performance trends
 
 **Frontend Tasks**:
+
 - [ ] Manager dashboard overview
 - [ ] Registration approval interface
 - [ ] Analytics charts (Recharts)
@@ -1412,14 +1564,17 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Report generation
 
 **Deliverables**:
+
 - Complete manager dashboard
 - Analytics and reporting
 - Comprehensive admin tools
 
 ### Phase 9: Creative Feature (Week 11)
+
 **Goal**: Implement innovative feature (15% of grade)
 
 **Options**:
+
 1. **Image-based Search**: YOLO/DINO for food recognition
 2. **Voice Ordering**: Speech-to-text integration
 3. **Smart Routing**: Optimized delivery route planning
@@ -1427,15 +1582,18 @@ Be concise and friendly. If you don't know the answer, say so.`;
 5. **AR Menu**: Augmented reality dish preview
 
 **Recommended**: Smart Routing for Delivery
+
 - Use Google Maps API or OpenRouteService
 - Optimize delivery routes for multiple orders
 - Estimate accurate delivery times
 - Reduce delivery costs
 
 ### Phase 10: Testing, Polish & Documentation (Week 12)
+
 **Goal**: Ensure quality and prepare for submission
 
 **Tasks**:
+
 - [ ] Unit tests for critical services
 - [ ] Integration tests for API endpoints
 - [ ] E2E tests for main user flows
@@ -1447,6 +1605,7 @@ Be concise and friendly. If you don't know the answer, say so.`;
 - [ ] Video demo preparation
 
 **Deliverables**:
+
 - Test coverage report
 - Bug-free application
 - Complete documentation
@@ -1464,13 +1623,13 @@ async checkAndUpgradeVIP(customerId) {
   const customer = await Customer.findByPk(customerId, {
     include: [{ model: User }]
   });
-  
+
   if (customer.is_vip) return; // Already VIP
-  
+
   // Check criteria
   const meetsSpending = customer.total_spent > 100;
   const meetsOrders = customer.order_count >= 3;
-  
+
   // Check for outstanding complaints
   const hasComplaints = await Complaint.count({
     where: {
@@ -1478,7 +1637,7 @@ async checkAndUpgradeVIP(customerId) {
       status: 'pending'
     }
   }) > 0;
-  
+
   if ((meetsSpending || meetsOrders) && !hasComplaints) {
     // Upgrade to VIP
     await customer.update({
@@ -1486,12 +1645,12 @@ async checkAndUpgradeVIP(customerId) {
       vip_upgraded_at: new Date(),
       free_delivery_count: 0
     });
-    
+
     await notificationService.notifyVIPUpgrade(customerId);
-    
+
     return { upgraded: true, customer };
   }
-  
+
   return { upgraded: false };
 }
 ```
@@ -1507,48 +1666,48 @@ async addWarning(userId, type, reason, source) {
     reason,
     source
   });
-  
+
   // Count active warnings
   const warningCount = await Warning.count({
     where: { user_id: userId, is_active: true }
   });
-  
+
   const user = await User.findByPk(userId);
-  
+
   // Customer with 3 warnings → terminate
   if (user.role === 'customer' && warningCount >= 3) {
     await this.terminateCustomer(userId);
   }
-  
+
   // VIP with 2 warnings → downgrade
   if (user.role === 'vip' && warningCount >= 2) {
     await vipService.downgradeFromVIP(userId, 'warning_threshold');
   }
-  
+
   // Employee with 3 warnings → terminate
   if (['chef', 'delivery'].includes(user.role) && warningCount >= 3) {
     await performanceService.terminateEmployee(userId, 'warning_threshold');
   }
-  
+
   await notificationService.notifyWarning(userId, warning.warning_id);
-  
+
   return warning;
 }
 
 async terminateCustomer(userId) {
   const customer = await Customer.findOne({ where: { user_id: userId } });
-  
+
   // Process refund
   if (customer.deposit_balance > 0) {
     await transactionService.processRefund(customer.customer_id);
   }
-  
+
   // Blacklist and deactivate
   await User.update(
     { is_active: false, is_blacklisted: true, blacklist_reason: 'warning_threshold' },
     { where: { user_id: userId } }
   );
-  
+
   await notificationService.notifyTermination(userId);
 }
 ```
@@ -1562,11 +1721,11 @@ const cron = require('node-cron');
 // Run daily at midnight
 cron.schedule('0 0 * * *', async () => {
   console.log('Running daily performance evaluation...');
-  
+
   const employees = await Employee.findAll({
     where: { termination_date: null }
   });
-  
+
   for (const employee of employees) {
     await performanceService.evaluateEmployee(employee.employee_id);
   }
@@ -1575,17 +1734,17 @@ cron.schedule('0 0 * * *', async () => {
 // services/performanceService.js
 async evaluateEmployee(employeeId) {
   const employee = await Employee.findByPk(employeeId);
-  
+
   // Check for demotion criteria
   if (employee.average_rating < 2 || employee.complaint_count >= 3) {
     await this.suggestDemotion(employeeId);
   }
-  
+
   // Check for bonus criteria
   if (employee.average_rating > 4 || employee.compliment_count >= 3) {
     await this.suggestBonus(employeeId);
   }
-  
+
   // Log evaluation
   await PerformanceHistory.create({
     employee_id: employeeId,
@@ -1600,18 +1759,18 @@ async evaluateEmployee(employeeId) {
 async applyDemotion(employeeId, newSalary, managerId, notes) {
   const employee = await Employee.findByPk(employeeId);
   const oldSalary = employee.salary;
-  
+
   await employee.update({
     salary: newSalary,
     demotion_count: employee.demotion_count + 1,
     complaint_count: 0 // Reset after action
   });
-  
+
   // Check if should be fired (2 demotions)
   if (employee.demotion_count >= 2) {
     await this.terminateEmployee(employeeId, 'demotion_threshold');
   }
-  
+
   await PerformanceHistory.create({
     employee_id: employeeId,
     evaluation_date: new Date(),
@@ -1620,7 +1779,7 @@ async applyDemotion(employeeId, newSalary, managerId, notes) {
     new_salary: newSalary,
     notes
   });
-  
+
   await notificationService.notifyDemotion(employeeId);
 }
 ```
@@ -1629,77 +1788,82 @@ async applyDemotion(employeeId, newSalary, managerId, notes) {
 
 ```javascript
 // Backend: Socket.io handling
-io.on('connection', (socket) => {
-  socket.on('join-delivery-room', (deliveryPersonId) => {
+io.on("connection", (socket) => {
+  socket.on("join-delivery-room", (deliveryPersonId) => {
     socket.join(`delivery-${deliveryPersonId}`);
   });
-  
-  socket.on('submit-bid', async ({ orderId, deliveryPersonId, bidData }) => {
+
+  socket.on("submit-bid", async ({ orderId, deliveryPersonId, bidData }) => {
     // Validate and save bid
     const bid = await DeliveryBid.create({
       order_id: orderId,
       delivery_person_id: deliveryPersonId,
       bid_amount: bidData.amount,
-      estimated_time: bidData.estimatedTime
+      estimated_time: bidData.estimatedTime,
     });
-    
+
     // Notify manager of new bid
-    io.to('manager-room').emit('new-bid', {
+    io.to("manager-room").emit("new-bid", {
       orderId,
-      bid
+      bid,
     });
-    
+
     // Check if bid window should close (3 bids or 5 minutes)
     const bidCount = await DeliveryBid.count({ where: { order_id: orderId } });
     if (bidCount >= 3) {
-      io.to('manager-room').emit('bid-window-closed', { orderId });
+      io.to("manager-room").emit("bid-window-closed", { orderId });
     }
   });
-  
-  socket.on('assign-delivery', async ({ orderId, bidId, managerId, justification }) => {
-    const bid = await DeliveryBid.findByPk(bidId);
-    
-    // Check if higher bid was chosen
-    const lowestBid = await DeliveryBid.findOne({
-      where: { order_id: orderId },
-      order: [['bid_amount', 'ASC']]
-    });
-    
-    if (bid.bid_id !== lowestBid.bid_id && !justification) {
-      socket.emit('error', { message: 'Justification required for higher bid' });
-      return;
-    }
-    
-    // Save justification if higher bid chosen
-    if (justification) {
-      await ManagerMemo.create({
-        manager_id: managerId,
-        reference_type: 'delivery_bid',
-        reference_id: bidId,
-        memo_text: justification
+
+  socket.on(
+    "assign-delivery",
+    async ({ orderId, bidId, managerId, justification }) => {
+      const bid = await DeliveryBid.findByPk(bidId);
+
+      // Check if higher bid was chosen
+      const lowestBid = await DeliveryBid.findOne({
+        where: { order_id: orderId },
+        order: [["bid_amount", "ASC"]],
       });
+
+      if (bid.bid_id !== lowestBid.bid_id && !justification) {
+        socket.emit("error", {
+          message: "Justification required for higher bid",
+        });
+        return;
+      }
+
+      // Save justification if higher bid chosen
+      if (justification) {
+        await ManagerMemo.create({
+          manager_id: managerId,
+          reference_type: "delivery_bid",
+          reference_id: bidId,
+          memo_text: justification,
+        });
+      }
+
+      // Assign delivery
+      await Order.update(
+        { assigned_delivery_person: bid.delivery_person_id },
+        { where: { order_id: orderId } }
+      );
+
+      await bid.update({ bid_status: "accepted" });
+
+      // Notify delivery person
+      io.to(`delivery-${bid.delivery_person_id}`).emit("delivery-assigned", {
+        orderId,
+        bid,
+      });
+
+      // Reject other bids
+      await DeliveryBid.update(
+        { bid_status: "rejected" },
+        { where: { order_id: orderId, bid_id: { [Op.ne]: bidId } } }
+      );
     }
-    
-    // Assign delivery
-    await Order.update(
-      { assigned_delivery_person: bid.delivery_person_id },
-      { where: { order_id: orderId } }
-    );
-    
-    await bid.update({ bid_status: 'accepted' });
-    
-    // Notify delivery person
-    io.to(`delivery-${bid.delivery_person_id}`).emit('delivery-assigned', {
-      orderId,
-      bid
-    });
-    
-    // Reject other bids
-    await DeliveryBid.update(
-      { bid_status: 'rejected' },
-      { where: { order_id: orderId, bid_id: { [Op.ne]: bidId } } }
-    );
-  });
+  );
 });
 ```
 
@@ -1712,16 +1876,16 @@ async submitRating(customerId, orderId, ratingData) {
   const order = await Order.findByPk(orderId, {
     include: [OrderItem]
   });
-  
+
   // Prevent duplicate ratings
   const existingRating = await Rating.findOne({
     where: { order_id: orderId, target_type: ratingData.targetType }
   });
-  
+
   if (existingRating) {
     throw new Error('Rating already submitted for this order');
   }
-  
+
   // Create rating
   const rating = await Rating.create({
     order_id: orderId,
@@ -1732,18 +1896,18 @@ async submitRating(customerId, orderId, ratingData) {
     comment: ratingData.comment,
     is_vip_rating: customer.is_vip
   });
-  
+
   // Update average rating with VIP weight
   await this.updateAverageRating(ratingData.targetId, ratingData.targetType);
-  
+
   // Check for abuse pattern (all 1-star)
   if (ratingData.rating === 1) {
     await this.checkAbusePattern(customerId);
   }
-  
+
   // Trigger performance evaluation if threshold crossed
   await performanceService.checkThresholds(ratingData.targetId);
-  
+
   return rating;
 }
 
@@ -1751,23 +1915,23 @@ async updateAverageRating(targetId, targetType) {
   const ratings = await Rating.findAll({
     where: { target_id: targetId, target_type: targetType }
   });
-  
+
   // Calculate weighted average (VIP ratings count 2x)
   let totalWeight = 0;
   let weightedSum = 0;
-  
+
   ratings.forEach(r => {
     const weight = r.is_vip_rating ? 2 : 1;
     weightedSum += r.rating * weight;
     totalWeight += weight;
   });
-  
+
   const avgRating = weightedSum / totalWeight;
-  
+
   // Update employee record
   if (targetType === 'food' || targetType === 'delivery') {
     await Employee.update(
-      { 
+      {
         average_rating: avgRating.toFixed(2),
         total_ratings: ratings.length
       },
@@ -1777,14 +1941,14 @@ async updateAverageRating(targetId, targetType) {
   // Or menu item
   else if (targetType === 'menu_item') {
     await MenuItem.update(
-      { 
+      {
         average_rating: avgRating.toFixed(2),
         total_ratings: ratings.length
       },
       { where: { item_id: targetId } }
     );
   }
-  
+
   return avgRating;
 }
 ```
@@ -1796,49 +1960,50 @@ async updateAverageRating(targetId, targetType) {
 ### 9.1 Backend Testing
 
 #### Unit Tests (Jest)
+
 ```javascript
 // tests/services/vipService.test.js
-describe('VIPService', () => {
-  describe('checkVIPEligibility', () => {
-    it('should upgrade customer who spent >$100', async () => {
+describe("VIPService", () => {
+  describe("checkVIPEligibility", () => {
+    it("should upgrade customer who spent >$100", async () => {
       const customer = await Customer.create({
         user_id: 1,
         total_spent: 150,
-        order_count: 2
+        order_count: 2,
       });
-      
+
       const result = await vipService.checkAndUpgradeVIP(customer.customer_id);
-      
+
       expect(result.upgraded).toBe(true);
       expect(result.customer.is_vip).toBe(true);
     });
-    
-    it('should upgrade customer with 3+ orders', async () => {
+
+    it("should upgrade customer with 3+ orders", async () => {
       const customer = await Customer.create({
         user_id: 2,
         total_spent: 50,
-        order_count: 3
+        order_count: 3,
       });
-      
+
       const result = await vipService.checkAndUpgradeVIP(customer.customer_id);
-      
+
       expect(result.upgraded).toBe(true);
     });
-    
-    it('should not upgrade with pending complaints', async () => {
+
+    it("should not upgrade with pending complaints", async () => {
       const customer = await Customer.create({
         user_id: 3,
         total_spent: 150,
-        order_count: 3
+        order_count: 3,
       });
-      
+
       await Complaint.create({
         subject_id: customer.user_id,
-        status: 'pending'
+        status: "pending",
       });
-      
+
       const result = await vipService.checkAndUpgradeVIP(customer.customer_id);
-      
+
       expect(result.upgraded).toBe(false);
     });
   });
@@ -1846,45 +2011,46 @@ describe('VIPService', () => {
 ```
 
 #### Integration Tests
+
 ```javascript
 // tests/integration/order.test.js
-describe('Order API', () => {
+describe("Order API", () => {
   let authToken;
-  
+
   beforeAll(async () => {
     // Login and get token
     const response = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'test@test.com', password: 'password' });
-    
+      .post("/api/auth/login")
+      .send({ email: "test@test.com", password: "password" });
+
     authToken = response.body.token;
   });
-  
-  describe('POST /api/orders', () => {
-    it('should create order with valid balance', async () => {
+
+  describe("POST /api/orders", () => {
+    it("should create order with valid balance", async () => {
       const response = await request(app)
-        .post('/api/orders')
-        .set('Authorization', `Bearer ${authToken}`)
+        .post("/api/orders")
+        .set("Authorization", `Bearer ${authToken}`)
         .send({
           items: [{ item_id: 1, quantity: 2 }],
-          delivery_address: '123 Main St'
+          delivery_address: "123 Main St",
         });
-      
+
       expect(response.status).toBe(201);
-      expect(response.body.order).toHaveProperty('order_id');
+      expect(response.body.order).toHaveProperty("order_id");
     });
-    
-    it('should reject order with insufficient balance', async () => {
+
+    it("should reject order with insufficient balance", async () => {
       const response = await request(app)
-        .post('/api/orders')
-        .set('Authorization', `Bearer ${authToken}`)
+        .post("/api/orders")
+        .set("Authorization", `Bearer ${authToken}`)
         .send({
           items: [{ item_id: 1, quantity: 100 }],
-          delivery_address: '123 Main St'
+          delivery_address: "123 Main St",
         });
-      
+
       expect(response.status).toBe(400);
-      expect(response.body.error).toContain('Insufficient balance');
+      expect(response.body.error).toContain("Insufficient balance");
     });
   });
 });
@@ -1893,68 +2059,71 @@ describe('Order API', () => {
 ### 9.2 Frontend Testing
 
 #### Component Tests (React Testing Library)
+
 ```typescript
 // tests/components/MenuList.test.tsx
-describe('MenuList', () => {
-  it('should display menu items', () => {
+describe("MenuList", () => {
+  it("should display menu items", () => {
     const mockItems = [
-      { item_id: 1, name: 'Pizza', price: 15.99 },
-      { item_id: 2, name: 'Burger', price: 12.99 }
+      { item_id: 1, name: "Pizza", price: 15.99 },
+      { item_id: 2, name: "Burger", price: 12.99 },
     ];
-    
+
     render(<MenuList items={mockItems} />);
-    
-    expect(screen.getByText('Pizza')).toBeInTheDocument();
-    expect(screen.getByText('Burger')).toBeInTheDocument();
+
+    expect(screen.getByText("Pizza")).toBeInTheDocument();
+    expect(screen.getByText("Burger")).toBeInTheDocument();
   });
-  
-  it('should filter VIP items for non-VIP users', () => {
+
+  it("should filter VIP items for non-VIP users", () => {
     const mockItems = [
-      { item_id: 1, name: 'Pizza', price: 15.99, is_vip_only: false },
-      { item_id: 2, name: 'Truffle Pasta', price: 45.99, is_vip_only: true }
+      { item_id: 1, name: "Pizza", price: 15.99, is_vip_only: false },
+      { item_id: 2, name: "Truffle Pasta", price: 45.99, is_vip_only: true },
     ];
-    
+
     const { container } = render(
       <MenuList items={mockItems} user={{ is_vip: false }} />
     );
-    
-    expect(screen.getByText('Pizza')).toBeInTheDocument();
-    expect(screen.queryByText('Truffle Pasta')).not.toBeInTheDocument();
+
+    expect(screen.getByText("Pizza")).toBeInTheDocument();
+    expect(screen.queryByText("Truffle Pasta")).not.toBeInTheDocument();
   });
 });
 ```
 
 #### E2E Tests (Playwright/Cypress)
+
 ```javascript
 // e2e/order-flow.spec.js
-describe('Complete Order Flow', () => {
-  it('should allow customer to place order', () => {
+describe("Complete Order Flow", () => {
+  it("should allow customer to place order", () => {
     // Login
-    cy.visit('/login');
-    cy.get('[data-testid=email]').type('customer@test.com');
-    cy.get('[data-testid=password]').type('password');
-    cy.get('[data-testid=submit]').click();
-    
+    cy.visit("/login");
+    cy.get("[data-testid=email]").type("customer@test.com");
+    cy.get("[data-testid=password]").type("password");
+    cy.get("[data-testid=submit]").click();
+
     // Browse menu
-    cy.visit('/menu');
-    cy.get('[data-testid=menu-item-1]').click();
-    cy.get('[data-testid=add-to-cart]').click();
-    
+    cy.visit("/menu");
+    cy.get("[data-testid=menu-item-1]").click();
+    cy.get("[data-testid=add-to-cart]").click();
+
     // Checkout
-    cy.get('[data-testid=cart-icon]').click();
-    cy.get('[data-testid=checkout]').click();
-    
+    cy.get("[data-testid=cart-icon]").click();
+    cy.get("[data-testid=checkout]").click();
+
     // Fill address
-    cy.get('[data-testid=address]').type('123 Main St');
-    cy.get('[data-testid=place-order]').click();
-    
+    cy.get("[data-testid=address]").type("123 Main St");
+    cy.get("[data-testid=place-order]").click();
+
     // Verify success
-    cy.contains('Order placed successfully').should('be.visible');
+    cy.contains("Order placed successfully").should("be.visible");
   });
 });
 ```
 
 ### 9.3 Test Coverage Goals
+
 - **Backend**: >80% code coverage
 - **Frontend**: >70% code coverage
 - **E2E**: Cover all critical user flows
@@ -1964,41 +2133,48 @@ describe('Complete Order Flow', () => {
 ## 10. Development Timeline
 
 ### Weeks 1-2: Foundation
+
 - Project setup
 - Database design
 - Authentication
 - Basic routing
 
 ### Weeks 3-4: Core Features
+
 - Menu system
 - Order placement
 - Deposit management
 - Transaction tracking
 
 ### Weeks 5-6: Advanced Features
+
 - Delivery bidding
 - Rating system
 - Complaint management
 - Warning system
 
 ### Weeks 7-8: Automation
+
 - Performance evaluation
 - VIP auto-upgrade
 - AI/LLM integration
 - Knowledge base
 
 ### Weeks 9-10: Additional Features
+
 - Discussion forum
 - Manager dashboard
 - Analytics
 - Reporting
 
 ### Week 11: Creative Feature
+
 - Implementation of chosen creative feature
 - Integration with main system
 - Testing and refinement
 
 ### Week 12: Final Polish
+
 - Testing
 - Bug fixes
 - Documentation
@@ -2010,18 +2186,21 @@ describe('Complete Order Flow', () => {
 ## Additional Recommendations
 
 ### 1. Code Organization
+
 - Use consistent naming conventions (camelCase for JS, PascalCase for React components)
 - Keep functions small and focused (single responsibility)
 - Add JSDoc comments for complex functions
 - Use environment variables for all config
 
 ### 2. Error Handling
+
 - Always use try-catch in async functions
 - Return consistent error response format
 - Log errors properly (Winston on backend)
 - Show user-friendly error messages on frontend
 
 ### 3. Security Best Practices
+
 - Hash passwords with bcrypt (salt rounds: 10)
 - Validate all user inputs
 - Use parameterized queries (prevent SQL injection)
@@ -2030,6 +2209,7 @@ describe('Complete Order Flow', () => {
 - Use HTTPS in production
 
 ### 4. Performance Optimization
+
 - Use database indexes on frequently queried fields
 - Implement pagination for large data sets
 - Cache frequently accessed data (Redis optional)
@@ -2038,6 +2218,7 @@ describe('Complete Order Flow', () => {
 - Use React.memo for expensive components
 
 ### 5. Git Workflow
+
 - Create feature branches (feature/menu-system)
 - Write meaningful commit messages
 - Do code reviews before merging
@@ -2045,6 +2226,7 @@ describe('Complete Order Flow', () => {
 - Tag releases (v1.0.0, v1.1.0)
 
 ### 6. Documentation
+
 - README with setup instructions
 - API documentation (Swagger/Postman collection)
 - Database schema diagram
