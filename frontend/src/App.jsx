@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
@@ -9,10 +11,30 @@ import CheckoutPage from './pages/CheckoutPage';
 import DashboardPage from './pages/DashboardPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ChefDashboardPage from './pages/ChefDashboardPage';
+import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
+import { authService } from './services/authService';
+import { setUser, logout } from './store/authSlice';
 
 function App() {
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (token) {
+        try {
+          const userData = await authService.getCurrentUser();
+          dispatch(setUser(userData));
+        } catch (err) {
+          dispatch(logout());
+        }
+      }
+    };
+    loadUser();
+  }, [token, dispatch]);
+
   return (
     <Router>
       <Layout>
@@ -45,6 +67,11 @@ function App() {
           <Route path="/chef/dashboard" element={
             <ProtectedRoute allowedRoles={['chef']}>
               <ChefDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/delivery/dashboard" element={
+            <ProtectedRoute allowedRoles={['delivery']}>
+              <DeliveryDashboardPage />
             </ProtectedRoute>
           } />
         </Routes>

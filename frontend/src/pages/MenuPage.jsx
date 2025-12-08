@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { menuService } from '../services/menuService';
 import { addToCart } from '../store/cartSlice';
 
@@ -88,7 +88,7 @@ function MenuPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1 style={{ color: '#333' }}>Menu</h1>
+      <h1 style={{ color: '#fff' }}>Menu</h1>
 
       <div style={{
         background: '#f8f9fa',
@@ -207,9 +207,9 @@ function MenuPage() {
                 {item.image_url && (
                   <img src={item.image_url} alt={item.name} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px' }} />
                 )}
-                <h3 style={{ color: '#333' }}>{item.name}</h3>
-                <p style={{ fontSize: '14px', color: '#666' }}>{item.description}</p>
-                <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#333' }}>${parseFloat(item.price).toFixed(2)}</p>
+                <h3 style={{ color: '#fff' }}>{item.name}</h3>
+                <p style={{ fontSize: '14px', color: '#fff' }}>{item.description}</p>
+                <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>${parseFloat(item.price).toFixed(2)}</p>
                 {item.is_vip_only && (
                   <span style={{ background: 'gold', padding: '2px 8px', borderRadius: '4px', fontSize: '12px' }}>VIP Only</span>
                 )}
@@ -218,7 +218,7 @@ function MenuPage() {
                     Chef: {item.Chef.User?.first_name} {item.Chef.User?.last_name}
                   </p>
                 )}
-                <p style={{ fontSize: '12px', color: '#333' }}>
+                <p style={{ fontSize: '12px', color: '#fff' }}>
                   Rating: {parseFloat(item.average_rating).toFixed(1)} ⭐ ({item.total_ratings} reviews)
                 </p>
               </div>
@@ -233,7 +233,7 @@ function MenuPage() {
         </div>
       )}
       <div style={{ marginTop: '20px' }}>
-        <a href="/cart">Go to Cart</a>
+        <Link to="/cart" style={{ color: '#007bff', textDecoration: 'none' }}>Go to Cart</Link>
       </div>
     </div>
   );

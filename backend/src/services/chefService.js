@@ -58,6 +58,18 @@ class ChefService {
       throw new Error('Menu item not found or you do not have permission to delete it');
     }
 
+    const hasOrders = await OrderItem.count({
+      where: { item_id: itemId }
+    });
+
+    if (hasOrders > 0) {
+      await menuItem.update({ is_available: false });
+      return {
+        message: 'Menu item has existing orders and cannot be deleted. It has been marked as unavailable instead.',
+        marked_unavailable: true
+      };
+    }
+
     await menuItem.destroy();
     return { message: 'Menu item deleted successfully' };
   }

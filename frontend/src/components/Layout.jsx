@@ -1,5 +1,5 @@
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { logout } from '../store/authSlice';
 
 function Layout({ children }) {
@@ -27,24 +27,24 @@ function Layout({ children }) {
             Restaurant
           </h1>
           <nav style={{ display: 'flex', gap: '15px' }}>
-            <a href="/menu" style={{ color: 'white', textDecoration: 'none' }}>Menu</a>
+            <Link to="/menu" style={{ color: 'white', textDecoration: 'none' }}>Menu</Link>
             {isAuthenticated && (
               <>
                 {(user?.role === 'customer' || user?.role === 'vip') && (
                   <>
-                    <a href="/cart" style={{ color: 'white', textDecoration: 'none' }}>Cart</a>
-                    <a href="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</a>
-                    <a href="/orders" style={{ color: 'white', textDecoration: 'none' }}>Orders</a>
+                    <Link to="/cart" style={{ color: 'white', textDecoration: 'none' }}>Cart</Link>
+                    <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>
+                    <Link to="/orders" style={{ color: 'white', textDecoration: 'none' }}>Orders</Link>
                   </>
                 )}
                 {user?.role === 'chef' && (
-                  <a href="/chef/dashboard" style={{ color: 'white', textDecoration: 'none' }}>My Kitchen</a>
+                  <Link to="/chef/dashboard" style={{ color: 'white', textDecoration: 'none' }}>My Kitchen</Link>
                 )}
                 {user?.role === 'delivery' && (
-                  <a href="/delivery/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Deliveries</a>
+                  <Link to="/delivery/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Deliveries</Link>
                 )}
                 {user?.role === 'manager' && (
-                  <a href="/manager/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Manager Panel</a>
+                  <Link to="/manager/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Manager Panel</Link>
                 )}
               </>
             )}
@@ -70,8 +70,8 @@ function Layout({ children }) {
             </>
           ) : (
             <>
-              <a href="/login" style={{ color: 'white', textDecoration: 'none' }}>Login</a>
-              <a href="/register" style={{ color: 'white', textDecoration: 'none' }}>Register</a>
+              <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
+              <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>Register</Link>
             </>
           )}
         </div>

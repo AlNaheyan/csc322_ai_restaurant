@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import api from '../services/api';
 
@@ -6,18 +6,18 @@ function HomePage() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [topChefs, setTopChefs] = useState([]);
 
-  useEffect(() => {
-    loadTopChefs();
-  }, []);
-
-  const loadTopChefs = async () => {
+  const loadTopChefs = useCallback(async () => {
     try {
       const response = await api.get('/employees/top-chefs?limit=3');
       setTopChefs(response.data);
     } catch (err) {
       console.error('Failed to load top chefs:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTopChefs();
+  }, [loadTopChefs]);
 
   if (!isAuthenticated) {
     return (
@@ -107,14 +107,14 @@ function HomePage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1 style={{ color: '#333' }}>Welcome, {user?.first_name}!</h1>
-      <p style={{ color: '#333' }}>Email: {user?.email}</p>
-      <p style={{ color: '#333' }}>Role: {user?.role}</p>
+      <h1 style={{ color: '#fff' }}>Welcome, {user?.first_name}!</h1>
+      <p style={{ color: '#fff' }}>Email: {user?.email}</p>
+      <p style={{ color: '#fff' }}>Role: {user?.role}</p>
       {user?.Customer && (
         <div>
-          <p style={{ color: '#333' }}>Balance: ${user.Customer.deposit_balance}</p>
-          <p style={{ color: '#333' }}>VIP Status: {user.Customer.is_vip ? 'Yes' : 'No'}</p>
-          <p style={{ color: '#333' }}>Registration: {user.Customer.registration_status}</p>
+          <p style={{ color: '#fff' }}>Balance: ${user.Customer.deposit_balance}</p>
+          <p style={{ color: '#fff' }}>VIP Status: {user.Customer.is_vip ? 'Yes' : 'No'}</p>
+          <p style={{ color: '#fff' }}>Registration: {user.Customer.registration_status}</p>
         </div>
       )}
     </div>

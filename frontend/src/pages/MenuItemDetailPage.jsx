@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { menuService } from '../services/menuService';
-import { addItem } from '../store/cartSlice';
+import { addToCart } from '../store/cartSlice';
 
 function MenuItemDetailPage() {
   const { id } = useParams();
@@ -40,11 +40,10 @@ function MenuItemDetailPage() {
       return;
     }
 
-    dispatch(addItem({
+    dispatch(addToCart({
       item_id: item.item_id,
       name: item.name,
       price: item.price,
-      quantity: quantity,
       is_vip_only: item.is_vip_only
     }));
 
