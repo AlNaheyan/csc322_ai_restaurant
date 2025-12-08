@@ -1,0 +1,101 @@
+import { useState, useEffect } from 'react';
+import { customerService } from '../services/customerService';
+
+function DashboardPage() {
+  const [customer, setCustomer] = useState(null);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [depositLoading, setDepositLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    loadCustomerData();
+  }, []);
+
+  const loadCustomerData = async () => {
+    try {
+      const data = await customerService.getProfile();
+      setCustomer(data);
+      setLoading(false);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to load profile');
+      setLoading(false);
+    }
+  };
+
+  const handleDeposit = async (e) => {
+    e.preventDefault();
+    setDepositLoading(true);
+    setError(null);
+
+    try {
+      await customerService.addDeposit(parseFloat(depositAmount));
+      setDepositAmount('');
+      await loadCustomerData();
+      alert('Deposit successful!');
+      setDepositLoading(false);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Deposit failed');
+      setDepositLoading(false);
+    }
+  };
+
+  if (loading) return <div style={{ padding: '20px' }}>Loading...</div>;
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
+      <h2>Customer Dashboard</h2>
+
+      {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+
+      <div style={{ background: '#f5f5f5', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h3 style={{ color: '#333' }}>Account Balance</h3>
+        <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#28a745' }}>
+          ${parseFloat(customer?.deposit_balance || 0).toFixed(2)}
+        </p>
+        {customer?.is_vip && (
+          <span style={{ background: 'gold', padding: '5px 15px', borderRadius: '4px', fontWeight: 'bold', color: '#333' }}>
+            VIP Member
+          </span>
+        )}
+      </div>
+
+      <div style={{ background: '#fff', border: '1px solid #ddd', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h3 style={{ color: '#333' }}>Add Funds</h3>
+        <form onSubmit={handleDeposit} style={{ display: 'flex', gap: '10px' }}>
+          <input
+            type="number"
+            min="10"
+            step="0.01"
+            value={depositAmount}
+            onChange={(e) => setDepositAmount(e.target.value)}
+            placeholder="Amount (min $10)"
+            required
+            style={{ flex: 1, padding: '10px', color: '#333' }}
+          />
+          <button
+            type="submit"
+            disabled={depositLoading}
+            style={{ padding: '10px 20px', background: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            {depositLoading ? 'Processing...' : 'Add Deposit'}
+          </button>
+        </form>
+      </div>
+
+      <div style={{ background: '#fff', border: '1px solid #ddd', padding: '20px', borderRadius: '8px' }}>
+        <h3 style={{ color: '#333' }}>Account Stats</h3>
+        <p style={{ color: '#333' }}>Total Orders: {customer?.order_count || 0}</p>
+        <p style={{ color: '#333' }}>Total Spent: ${parseFloat(customer?.total_spent || 0).toFixed(2)}</p>
+        <p style={{ color: '#333' }}>Registration Status: {customer?.registration_status}</p>
+        <p style={{ color: '#333' }}>Warnings: {customer?.warning_count || 0}</p>
+      </div>
+
+      <div style={{ marginTop: '20px' }}>
+        <a href="/orders">View Order History</a>
+      </div>
+    </div>
+  );
+}
+
+export default DashboardPage;

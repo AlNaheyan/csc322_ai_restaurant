@@ -33,6 +33,11 @@ function HomePage() {
           <p>Registration: {user.Customer.registration_status}</p>
         </div>
       )}
+      <div style={{ marginTop: '20px' }}>
+        <a href="/menu" style={{ marginRight: '15px' }}>Browse Menu</a>
+        <a href="/dashboard" style={{ marginRight: '15px' }}>My Dashboard</a>
+        <a href="/cart" style={{ marginRight: '15px' }}>Cart</a>
+      </div>
       <button onClick={handleLogout} style={{ padding: '10px 20px', marginTop: '20px' }}>
         Logout
       </button>
