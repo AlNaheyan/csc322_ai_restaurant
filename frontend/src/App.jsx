@@ -3,22 +3,52 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import MenuPage from './pages/MenuPage';
+import MenuItemDetailPage from './pages/MenuItemDetailPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import DashboardPage from './pages/DashboardPage';
+import OrderHistoryPage from './pages/OrderHistoryPage';
+import ChefDashboardPage from './pages/ChefDashboardPage';
+import ProtectedRoute from './components/ProtectedRoute';
+import Layout from './components/Layout';
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/menu" element={<MenuPage />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-      </Routes>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/menu/:id" element={<MenuItemDetailPage />} />
+          <Route path="/cart" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip']}>
+              <CartPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/checkout" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip']}>
+              <CheckoutPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip']}>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip']}>
+              <OrderHistoryPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/chef/dashboard" element={
+            <ProtectedRoute allowedRoles={['chef']}>
+              <ChefDashboardPage />
+            </ProtectedRoute>
+          } />
+        </Routes>
+      </Layout>
     </Router>
   );
 }

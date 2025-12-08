@@ -8,5 +8,6 @@ router.use(authenticate);
 router.get('/profile', customerController.getProfile);
 router.post('/deposit', customerController.addDeposit);
 router.get('/transactions', customerController.getTransactionHistory);
+router.post('/close-account', customerController.requestAccountClosure);
 
 module.exports = router;

@@ -14,5 +14,10 @@ export const customerService = {
   getTransactionHistory: async (limit = 50) => {
     const response = await api.get(`/customer/transactions?limit=${limit}`);
     return response.data;
+  },
+
+  closeAccount: async (reason) => {
+    const response = await api.post('/customer/close-account', { reason });
+    return response.data;
   }
 };

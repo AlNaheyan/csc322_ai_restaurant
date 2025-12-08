@@ -117,6 +117,39 @@ class CustomerService {
       }
     };
   }
+
+  async requestAccountClosure(userId, reason) {
+    const customer = await Customer.findOne({
+      where: { user_id: userId },
+      include: [{ model: User }]
+    });
+
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    if (parseFloat(customer.deposit_balance) > 0) {
+      throw new Error('Cannot close account with remaining balance. Please withdraw or use your balance first.');
+    }
+
+    const transaction = await sequelize.transaction();
+
+    try {
+      await customer.User.update({
+        is_active: false,
+        blacklist_reason: `Account closure requested: ${reason}`
+      }, { transaction });
+
+      await transaction.commit();
+
+      return {
+        message: 'Account closure request submitted successfully. Your account has been deactivated.'
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
 }
 
 module.exports = new CustomerService();

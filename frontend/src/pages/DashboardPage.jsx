@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { customerService } from '../services/customerService';
+import { logout } from '../store/authSlice';
 
 function DashboardPage() {
   const [customer, setCustomer] = useState(null);
@@ -7,6 +10,10 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [depositLoading, setDepositLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showCloseAccount, setShowCloseAccount] = useState(false);
+  const [closureReason, setClosureReason] = useState('');
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     loadCustomerData();
@@ -37,6 +44,26 @@ function DashboardPage() {
     } catch (err) {
       setError(err.response?.data?.error || 'Deposit failed');
       setDepositLoading(false);
+    }
+  };
+
+  const handleCloseAccount = async () => {
+    if (!closureReason.trim()) {
+      setError('Please provide a reason for closing your account');
+      return;
+    }
+
+    if (!window.confirm('Are you sure you want to close your account? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      await customerService.closeAccount(closureReason);
+      alert('Your account has been closed. You will be logged out.');
+      dispatch(logout());
+      navigate('/login');
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to close account');
     }
   };
 
@@ -93,6 +120,92 @@ function DashboardPage() {
 
       <div style={{ marginTop: '20px' }}>
         <a href="/orders">View Order History</a>
+      </div>
+
+      <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid #ddd' }}>
+        <h3 style={{ color: '#dc3545' }}>Danger Zone</h3>
+        {!showCloseAccount ? (
+          <button
+            onClick={() => setShowCloseAccount(true)}
+            style={{
+              background: '#dc3545',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            Close Account
+          </button>
+        ) : (
+          <div style={{
+            background: '#fff3cd',
+            border: '1px solid #ffc107',
+            borderRadius: '8px',
+            padding: '20px'
+          }}>
+            <h4 style={{ color: '#856404', marginTop: 0 }}>Close Your Account</h4>
+            <p style={{ color: '#856404', marginBottom: '15px' }}>
+              Warning: This action cannot be undone. Your account balance must be $0 to close your account.
+            </p>
+            <p style={{ color: '#856404', marginBottom: '15px' }}>
+              Current Balance: ${parseFloat(customer?.deposit_balance || 0).toFixed(2)}
+            </p>
+            {parseFloat(customer?.deposit_balance || 0) > 0 && (
+              <p style={{ color: '#dc3545', marginBottom: '15px', fontWeight: 'bold' }}>
+                You cannot close your account while you have a remaining balance.
+              </p>
+            )}
+            <textarea
+              value={closureReason}
+              onChange={(e) => setClosureReason(e.target.value)}
+              placeholder="Please tell us why you're closing your account..."
+              rows="4"
+              style={{
+                width: '100%',
+                padding: '10px',
+                border: '1px solid #ddd',
+                borderRadius: '4px',
+                marginBottom: '15px'
+              }}
+            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={handleCloseAccount}
+                disabled={parseFloat(customer?.deposit_balance || 0) > 0}
+                style={{
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  cursor: parseFloat(customer?.deposit_balance || 0) > 0 ? 'not-allowed' : 'pointer',
+                  opacity: parseFloat(customer?.deposit_balance || 0) > 0 ? 0.5 : 1
+                }}
+              >
+                Confirm Account Closure
+              </button>
+              <button
+                onClick={() => {
+                  setShowCloseAccount(false);
+                  setClosureReason('');
+                  setError(null);
+                }}
+                style={{
+                  background: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  padding: '10px 20px',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

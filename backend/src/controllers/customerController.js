@@ -29,6 +29,19 @@ class CustomerController {
       next(error);
     }
   }
+
+  async requestAccountClosure(req, res, next) {
+    try {
+      const { reason } = req.body;
+      if (!reason || reason.trim().length === 0) {
+        return res.status(400).json({ error: 'Please provide a reason for account closure' });
+      }
+      const result = await customerService.requestAccountClosure(req.user.user_id, reason);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new CustomerController();
