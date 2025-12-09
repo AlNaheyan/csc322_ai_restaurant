@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { orderService } from '../services/orderService';
+import socketService from '../services/socketService';
 
 function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
@@ -8,7 +9,23 @@ function OrderHistoryPage() {
 
   useEffect(() => {
     loadOrders();
+
+    socketService.on('order_status_update', handleOrderStatusUpdate);
+
+    return () => {
+      socketService.off('order_status_update', handleOrderStatusUpdate);
+    };
   }, []);
+
+  const handleOrderStatusUpdate = (data) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.order_id === data.orderId
+          ? { ...order, status: data.status }
+          : order
+      )
+    );
+  };
 
   const loadOrders = async () => {
     try {

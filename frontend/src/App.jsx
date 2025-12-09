@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage';
 import OrderHistoryPage from './pages/OrderHistoryPage';
 import ChefDashboardPage from './pages/ChefDashboardPage';
 import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
+import ManagerDashboardPage from './pages/ManagerDashboardPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
@@ -77,6 +78,11 @@ function App() {
           <Route path="/delivery/dashboard" element={
             <ProtectedRoute allowedRoles={['delivery']}>
               <DeliveryDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/dashboard" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerDashboardPage />
             </ProtectedRoute>
           } />
         </Routes>
