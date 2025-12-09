@@ -5,6 +5,8 @@ const MenuItem = require('./MenuItem');
 const Order = require('./Order');
 const OrderItem = require('./OrderItem');
 const Transaction = require('./Transaction');
+const DeliveryBid = require('./DeliveryBid');
+const ManagerMemo = require('./ManagerMemo');
 
 User.hasOne(Customer, { foreignKey: 'user_id' });
 Customer.belongsTo(User, { foreignKey: 'user_id' });
@@ -27,6 +29,15 @@ OrderItem.belongsTo(MenuItem, { foreignKey: 'item_id' });
 Customer.hasMany(Transaction, { foreignKey: 'customer_id' });
 Transaction.belongsTo(Customer, { foreignKey: 'customer_id' });
 
+Order.hasMany(DeliveryBid, { foreignKey: 'order_id' });
+DeliveryBid.belongsTo(Order, { foreignKey: 'order_id' });
+
+Employee.hasMany(DeliveryBid, { foreignKey: 'delivery_person_id' });
+DeliveryBid.belongsTo(Employee, { foreignKey: 'delivery_person_id', as: 'DeliveryPerson' });
+
+User.hasMany(ManagerMemo, { foreignKey: 'manager_id' });
+ManagerMemo.belongsTo(User, { foreignKey: 'manager_id', as: 'Manager' });
+
 module.exports = {
   User,
   Customer,
@@ -34,5 +45,7 @@ module.exports = {
   MenuItem,
   Order,
   OrderItem,
-  Transaction
+  Transaction,
+  DeliveryBid,
+  ManagerMemo
 };

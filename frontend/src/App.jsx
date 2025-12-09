@@ -16,6 +16,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
 import { setUser, logout } from './store/authSlice';
+import socketService from './services/socketService';
 
 function App() {
   const dispatch = useDispatch();
@@ -27,9 +28,13 @@ function App() {
         try {
           const userData = await authService.getCurrentUser();
           dispatch(setUser(userData));
+          socketService.connect(token);
         } catch (err) {
           dispatch(logout());
+          socketService.disconnect();
         }
+      } else {
+        socketService.disconnect();
       }
     };
     loadUser();

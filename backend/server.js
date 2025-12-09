@@ -1,6 +1,8 @@
 require('dotenv').config();
 const app = require('./src/app');
 const { sequelize, testConnection } = require('./src/config/database');
+const http = require('http');
+const socketService = require('./src/services/socketService');
 
 const PORT = process.env.PORT || 5000;
 
@@ -11,7 +13,12 @@ const startServer = async () => {
     await sequelize.sync({ alter: false });
     console.log('Database synchronized');
 
-    app.listen(PORT, () => {
+    const server = http.createServer(app);
+
+    socketService.initialize(server);
+    console.log('Socket.io initialized');
+
+    server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV}`);
     });

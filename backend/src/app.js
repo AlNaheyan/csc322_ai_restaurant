@@ -7,6 +7,7 @@ const customerRoutes = require('./routes/customer');
 const orderRoutes = require('./routes/order');
 const chefRoutes = require('./routes/chef');
 const deliveryRoutes = require('./routes/delivery');
+const biddingRoutes = require('./routes/bidding');
 const employeeRoutes = require('./routes/employee');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use('/api/customer', customerRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/chef', chefRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/bidding', biddingRoutes);
 app.use('/api/employees', employeeRoutes);
 
 app.use(errorHandler);
