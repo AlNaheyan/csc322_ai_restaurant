@@ -7,6 +7,9 @@ const OrderItem = require('./OrderItem');
 const Transaction = require('./Transaction');
 const DeliveryBid = require('./DeliveryBid');
 const ManagerMemo = require('./ManagerMemo');
+const Rating = require('./Rating');
+const Complaint = require('./Complaint');
+const Warning = require('./Warning');
 
 User.hasOne(Customer, { foreignKey: 'user_id' });
 Customer.belongsTo(User, { foreignKey: 'user_id' });
@@ -38,6 +41,24 @@ DeliveryBid.belongsTo(Employee, { foreignKey: 'delivery_person_id', as: 'Deliver
 User.hasMany(ManagerMemo, { foreignKey: 'manager_id' });
 ManagerMemo.belongsTo(User, { foreignKey: 'manager_id', as: 'Manager' });
 
+// Rating associations
+Customer.hasMany(Rating, { foreignKey: 'customer_id' });
+Rating.belongsTo(Customer, { foreignKey: 'customer_id' });
+
+Order.hasMany(Rating, { foreignKey: 'order_id' });
+Rating.belongsTo(Order, { foreignKey: 'order_id' });
+
+// Complaint associations
+User.hasMany(Complaint, { foreignKey: 'filer_id', as: 'FiledComplaints' });
+User.hasMany(Complaint, { foreignKey: 'subject_id', as: 'ReceivedComplaints' });
+Complaint.belongsTo(User, { foreignKey: 'filer_id', as: 'Filer' });
+Complaint.belongsTo(User, { foreignKey: 'subject_id', as: 'Subject' });
+Complaint.belongsTo(User, { foreignKey: 'resolved_by', as: 'Resolver' });
+
+// Warning associations
+User.hasMany(Warning, { foreignKey: 'user_id' });
+Warning.belongsTo(User, { foreignKey: 'user_id' });
+
 module.exports = {
   User,
   Customer,
@@ -47,5 +68,8 @@ module.exports = {
   OrderItem,
   Transaction,
   DeliveryBid,
-  ManagerMemo
+  ManagerMemo,
+  Rating,
+  Complaint,
+  Warning
 };

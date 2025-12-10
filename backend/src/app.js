@@ -9,6 +9,8 @@ const chefRoutes = require('./routes/chef');
 const deliveryRoutes = require('./routes/delivery');
 const biddingRoutes = require('./routes/bidding');
 const employeeRoutes = require('./routes/employee');
+const ratingRoutes = require('./routes/ratings');
+const complaintRoutes = require('./routes/complaints');
 
 const app = express();
 
@@ -32,6 +34,8 @@ app.use('/api/chef', chefRoutes);
 app.use('/api/delivery', deliveryRoutes);
 app.use('/api/bidding', biddingRoutes);
 app.use('/api/employees', employeeRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/complaints', complaintRoutes);
 
 app.use(errorHandler);
 
