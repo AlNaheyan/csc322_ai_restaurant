@@ -3,6 +3,7 @@ const app = require('./src/app');
 const { sequelize, testConnection } = require('./src/config/database');
 const http = require('http');
 const socketService = require('./src/services/socketService');
+const { startScheduledTasks } = require('./src/services/scheduler');
 
 const PORT = process.env.PORT || 5000;
 
@@ -17,6 +18,9 @@ const startServer = async () => {
 
     socketService.initialize(server);
     console.log('Socket.io initialized');
+
+    startScheduledTasks();
+    console.log('Scheduled tasks initialized');
 
     server.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

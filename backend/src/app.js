@@ -11,6 +11,8 @@ const biddingRoutes = require('./routes/bidding');
 const employeeRoutes = require('./routes/employee');
 const ratingRoutes = require('./routes/ratings');
 const complaintRoutes = require('./routes/complaints');
+const performanceRoutes = require('./routes/performance');
+const vipRoutes = require('./routes/vip');
 
 const app = express();
 
@@ -36,6 +38,8 @@ app.use('/api/bidding', biddingRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/ratings', ratingRoutes);
 app.use('/api/complaints', complaintRoutes);
+app.use('/api/performance', performanceRoutes);
+app.use('/api/vip', vipRoutes);
 
 app.use(errorHandler);
 

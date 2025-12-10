@@ -10,6 +10,8 @@ const ManagerMemo = require('./ManagerMemo');
 const Rating = require('./Rating');
 const Complaint = require('./Complaint');
 const Warning = require('./Warning');
+const PerformanceHistory = require('./PerformanceHistory');
+const Blacklist = require('./Blacklist');
 
 User.hasOne(Customer, { foreignKey: 'user_id' });
 Customer.belongsTo(User, { foreignKey: 'user_id' });
@@ -59,6 +61,15 @@ Complaint.belongsTo(User, { foreignKey: 'resolved_by', as: 'Resolver' });
 User.hasMany(Warning, { foreignKey: 'user_id' });
 Warning.belongsTo(User, { foreignKey: 'user_id' });
 
+// PerformanceHistory associations
+Employee.hasMany(PerformanceHistory, { foreignKey: 'employee_id' });
+PerformanceHistory.belongsTo(Employee, { foreignKey: 'employee_id' });
+
+// Blacklist associations
+User.hasMany(Blacklist, { foreignKey: 'user_id' });
+Blacklist.belongsTo(User, { foreignKey: 'user_id', as: 'BlacklistedUser' });
+Blacklist.belongsTo(User, { foreignKey: 'blacklisted_by', as: 'BlacklistedBy' });
+
 module.exports = {
   User,
   Customer,
@@ -71,5 +82,7 @@ module.exports = {
   ManagerMemo,
   Rating,
   Complaint,
-  Warning
+  Warning,
+  PerformanceHistory,
+  Blacklist
 };
