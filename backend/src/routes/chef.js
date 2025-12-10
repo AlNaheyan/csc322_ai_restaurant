@@ -14,5 +14,6 @@ router.post('/menu-items', chefController.createMenuItem);
 router.put('/menu-items/:id', chefController.updateMenuItem);
 router.delete('/menu-items/:id', chefController.deleteMenuItem);
 router.get('/orders', chefController.getMyOrders);
+router.put('/orders/:orderId/ready', chefController.markOrderReady);
 
 module.exports = router;

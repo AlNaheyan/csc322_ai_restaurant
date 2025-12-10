@@ -36,7 +36,7 @@ const ManagerDashboardPage = () => {
   const fetchReadyOrders = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:3001/api/orders?status=ready', {
+      const response = await fetch('http://localhost:3001/api/bidding/orders/with-bids', {
         headers: {
           'Authorization': `Bearer ${token}`
         }

@@ -76,6 +76,11 @@ class ChefService {
 
   async getMyOrders(chefId) {
     const orders = await Order.findAll({
+      where: {
+        status: {
+          [Op.in]: ['pending', 'confirmed', 'preparing', 'ready_for_delivery']
+        }
+      },
       include: [{
         model: OrderItem,
         where: { chef_id: chefId },
@@ -115,6 +120,40 @@ class ChefService {
       complaint_count: employee?.complaint_count || 0,
       compliment_count: employee?.compliment_count || 0
     };
+  }
+
+  async markOrderReady(orderId, chefId) {
+    const order = await Order.findByPk(orderId, {
+      include: [{
+        model: OrderItem,
+        where: { chef_id: chefId }
+      }]
+    });
+
+    if (!order) {
+      throw new Error('Order not found or you do not have items in this order');
+    }
+
+    if (order.status === 'ready_for_delivery') {
+      throw new Error('Order is already marked as ready');
+    }
+
+    await order.update({ status: 'ready_for_delivery' });
+
+    // Try to emit socket event, but don't fail if socket service is unavailable
+    try {
+      const socketService = require('./socketService');
+      if (socketService && socketService.emitToDelivery) {
+        socketService.emitToDelivery('new_order_ready', {
+          orderId: order.order_id,
+          orderDetails: order
+        });
+      }
+    } catch (err) {
+      console.log('Socket service not available:', err.message);
+    }
+
+    return { message: 'Order marked as ready for delivery', order };
   }
 }
 

@@ -116,6 +116,23 @@ class ChefController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async markOrderReady(req, res) {
+    try {
+      const employee = await Employee.findOne({
+        where: { user_id: req.user.user_id }
+      });
+
+      if (!employee) {
+        return res.status(404).json({ error: 'Chef profile not found' });
+      }
+
+      const result = await chefService.markOrderReady(req.params.orderId, employee.employee_id);
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 module.exports = new ChefController();

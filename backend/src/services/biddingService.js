@@ -4,14 +4,14 @@ const socketService = require('./socketService');
 
 class BiddingService {
   async submitBid(deliveryPersonId, orderId, bidData) {
-    const { bid_amount, estimated_time_minutes, notes } = bidData;
+    const { bid_amount, estimated_time } = bidData;
 
     const order = await Order.findByPk(orderId);
     if (!order) {
       throw new Error('Order not found');
     }
 
-    if (order.status !== 'ready') {
+    if (order.status !== 'ready_for_delivery') {
       throw new Error('Order is not ready for bidding');
     }
 
@@ -23,7 +23,7 @@ class BiddingService {
       where: {
         order_id: orderId,
         delivery_person_id: deliveryPersonId,
-        status: 'pending'
+        bid_status: 'pending'
       }
     });
 
@@ -35,9 +35,8 @@ class BiddingService {
       order_id: orderId,
       delivery_person_id: deliveryPersonId,
       bid_amount: parseFloat(bid_amount),
-      estimated_time_minutes: parseInt(estimated_time_minutes),
-      notes,
-      status: 'pending'
+      estimated_time: parseInt(estimated_time),
+      bid_status: 'pending'
     });
 
     socketService.notifyNewBid(orderId, bid);
@@ -49,7 +48,7 @@ class BiddingService {
     const bids = await DeliveryBid.findAll({
       where: {
         order_id: orderId,
-        status: 'pending'
+        bid_status: 'pending'
       },
       include: [
         {
@@ -65,7 +64,7 @@ class BiddingService {
       ],
       order: [
         ['bid_amount', 'ASC'],
-        ['estimated_time_minutes', 'ASC']
+        ['estimated_time', 'ASC']
       ]
     });
 
@@ -78,7 +77,7 @@ class BiddingService {
       throw new Error('Bid not found');
     }
 
-    if (bid.status !== 'pending') {
+    if (bid.bid_status !== 'pending') {
       throw new Error('Bid is not pending');
     }
 
@@ -91,23 +90,23 @@ class BiddingService {
       throw new Error('Order already assigned');
     }
 
-    await bid.update({ status: 'accepted' });
+    await bid.update({ bid_status: 'accepted' });
 
     await Order.update(
       {
         assigned_delivery_person: bid.delivery_person_id,
-        status: 'ready'
+        status: 'out_for_delivery'
       },
       { where: { order_id: bid.order_id } }
     );
 
     await DeliveryBid.update(
-      { status: 'rejected' },
+      { bid_status: 'rejected' },
       {
         where: {
           order_id: bid.order_id,
           bid_id: { [Op.ne]: bidId },
-          status: 'pending'
+          bid_status: 'pending'
         }
       }
     );
@@ -127,7 +126,7 @@ class BiddingService {
       where: {
         order_id: bid.order_id,
         bid_id: { [Op.ne]: bidId },
-        status: 'rejected'
+        bid_status: 'rejected'
       }
     });
 
@@ -143,7 +142,7 @@ class BiddingService {
       where: {
         bid_id: bidId,
         delivery_person_id: deliveryPersonId,
-        status: 'pending'
+        bid_status: 'pending'
       }
     });
 
@@ -151,7 +150,7 @@ class BiddingService {
       throw new Error('Bid not found or cannot be withdrawn');
     }
 
-    await bid.update({ status: 'withdrawn' });
+    await bid.update({ bid_status: 'withdrawn' });
 
     return { message: 'Bid withdrawn successfully' };
   }
@@ -160,7 +159,7 @@ class BiddingService {
     const where = { delivery_person_id: deliveryPersonId };
 
     if (status) {
-      where.status = status;
+      where.bid_status = status;
     }
 
     const bids = await DeliveryBid.findAll({
@@ -176,6 +175,39 @@ class BiddingService {
     });
 
     return bids;
+  }
+  async getReadyOrders() {
+    const orders = await Order.findAll({
+      where: {
+        status: 'ready_for_delivery',
+        assigned_delivery_person: null
+      },
+      order: [['created_at', 'ASC']]
+    });
+
+    return orders;
+  }
+
+  async getOrdersWithBids() {
+    const ordersWithBids = await Order.findAll({
+      where: {
+        status: 'ready_for_delivery',
+        assigned_delivery_person: null
+      },
+      include: [
+        {
+          model: DeliveryBid,
+          required: true,
+          where: {
+            bid_status: 'pending'
+          }
+        }
+      ],
+      order: [['created_at', 'ASC']],
+      distinct: true
+    });
+
+    return ordersWithBids;
   }
 }
 

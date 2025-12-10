@@ -34,5 +34,10 @@ export const chefService = {
   async getMyOrders() {
     const response = await api.get('/chef/orders');
     return response.data;
+  },
+
+  async markOrderReady(orderId) {
+    const response = await api.put(`/chef/orders/${orderId}/ready`);
+    return response.data;
   }
 };

@@ -30,24 +30,22 @@ const DeliveryBid = sequelize.define('DeliveryBid', {
       min: 0
     }
   },
-  estimated_time_minutes: {
+  estimated_time: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    field: 'estimated_time',
     validate: {
       min: 5,
       max: 180
     }
   },
-  status: {
+  bid_status: {
     type: DataTypes.STRING(20),
     defaultValue: 'pending',
+    field: 'bid_status',
     validate: {
       isIn: [['pending', 'accepted', 'rejected', 'withdrawn']]
     }
-  },
-  notes: {
-    type: DataTypes.TEXT,
-    allowNull: true
   },
   created_at: {
     type: DataTypes.DATE,

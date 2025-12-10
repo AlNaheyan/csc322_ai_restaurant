@@ -17,6 +17,8 @@ function DeliveryDashboardPage() {
 
   useEffect(() => {
     loadData();
+    loadReadyOrders();
+    loadMyBids();
 
     socketService.on('new_order_ready', handleNewOrderReady);
     socketService.on('bid_accepted', handleBidAccepted);
@@ -64,8 +66,8 @@ function DeliveryDashboardPage() {
 
   const loadReadyOrders = async () => {
     try {
-      const response = await api.get('/orders?status=ready');
-      setReadyOrders(response.data.filter(order => !order.assigned_delivery_person));
+      const response = await api.get('/bidding/orders/ready');
+      setReadyOrders(response.data);
     } catch (err) {
       console.error('Failed to load ready orders:', err);
     }
@@ -102,7 +104,7 @@ function DeliveryDashboardPage() {
 
   const handleSubmitBid = async (orderId) => {
     const bid = bidForm[orderId];
-    if (!bid?.bid_amount || !bid?.estimated_time_minutes) {
+    if (!bid?.bid_amount || !bid?.estimated_time) {
       alert('Please fill in all bid fields');
       return;
     }
@@ -409,10 +411,10 @@ function DeliveryDashboardPage() {
                               type="number"
                               min="5"
                               placeholder="30"
-                              value={bidForm[order.order_id]?.estimated_time_minutes || ''}
+                              value={bidForm[order.order_id]?.estimated_time || ''}
                               onChange={(e) => setBidForm({
                                 ...bidForm,
-                                [order.order_id]: { ...bidForm[order.order_id], estimated_time_minutes: e.target.value }
+                                [order.order_id]: { ...bidForm[order.order_id], estimated_time: e.target.value }
                               })}
                               style={{
                                 width: '100%',
@@ -522,16 +524,16 @@ function DeliveryDashboardPage() {
                         <strong>Your Bid:</strong> ${parseFloat(bid.bid_amount).toFixed(2)}
                       </p>
                       <p style={{ color: '#666', margin: '5px 0' }}>
-                        <strong>Estimated Time:</strong> {bid.estimated_time_minutes} minutes
+                        <strong>Estimated Time:</strong> {bid.estimated_time} minutes
                       </p>
                       <p style={{ color: '#666', margin: '5px 0' }}>
                         <strong>Status:</strong> <span style={{
                           padding: '2px 8px',
                           borderRadius: '4px',
-                          background: bid.status === 'accepted' ? '#28a745' :
-                                     bid.status === 'pending' ? '#f39c12' : '#dc3545',
+                          background: bid.bid_status === 'accepted' ? '#28a745' :
+                                     bid.bid_status === 'pending' ? '#f39c12' : '#dc3545',
                           color: 'white'
-                        }}>{bid.status}</span>
+                        }}>{bid.bid_status}</span>
                       </p>
                       {bid.notes && (
                         <p style={{ color: '#666', margin: '5px 0' }}>

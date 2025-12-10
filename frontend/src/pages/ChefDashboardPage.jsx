@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { chefService } from '../services/chefService';
+import socketService from '../services/socketService';
 
 function ChefDashboardPage() {
   const [stats, setStats] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [formData, setFormData] = useState({
@@ -16,19 +18,30 @@ function ChefDashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('orders');
 
   useEffect(() => {
     loadDashboardData();
+
+    socketService.on('new_order', loadDashboardData);
+    socketService.on('order_status_update', loadDashboardData);
+
+    return () => {
+      socketService.off('new_order', loadDashboardData);
+      socketService.off('order_status_update', loadDashboardData);
+    };
   }, []);
 
   const loadDashboardData = async () => {
     try {
-      const [statsData, itemsData] = await Promise.all([
+      const [statsData, itemsData, ordersData] = await Promise.all([
         chefService.getDashboard(),
-        chefService.getMyMenuItems()
+        chefService.getMyMenuItems(),
+        chefService.getMyOrders()
       ]);
       setStats(statsData);
       setMenuItems(itemsData);
+      setOrders(ordersData);
       setLoading(false);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load dashboard');
@@ -112,13 +125,68 @@ function ChefDashboardPage() {
     });
   };
 
+  const handleMarkReady = async (orderId) => {
+    try {
+      await chefService.markOrderReady(orderId);
+      alert('Order marked as ready for delivery!');
+      await loadDashboardData();
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to mark order as ready');
+    }
+  };
+
   if (loading) return <div style={{ padding: '20px' }}>Loading...</div>;
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: '#ffc107',
+      confirmed: '#17a2b8',
+      preparing: '#fd7e14',
+      ready: '#20c997',
+      out_for_delivery: '#007bff',
+      delivered: '#28a745',
+      cancelled: '#dc3545'
+    };
+    return colors[status] || '#6c757d';
+  };
 
   return (
     <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
       <h2 style={{ color: '#333' }}>Chef Dashboard</h2>
 
       {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
+
+      <div style={{ marginBottom: '20px', borderBottom: '2px solid #ddd' }}>
+        <button
+          onClick={() => setActiveTab('orders')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'orders' ? '#007bff' : 'transparent',
+            color: activeTab === 'orders' ? 'white' : '#333',
+            border: 'none',
+            borderBottom: activeTab === 'orders' ? '3px solid #007bff' : 'none',
+            cursor: 'pointer',
+            fontSize: '16px',
+            marginRight: '10px'
+          }}
+        >
+          Orders ({orders.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('menu')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'menu' ? '#007bff' : 'transparent',
+            color: activeTab === 'menu' ? 'white' : '#333',
+            border: 'none',
+            borderBottom: activeTab === 'menu' ? '3px solid #007bff' : 'none',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          Menu Items ({menuItems.length})
+        </button>
+      </div>
 
       {stats && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
@@ -146,22 +214,115 @@ function ChefDashboardPage() {
         </div>
       )}
 
-      <div style={{ marginBottom: '20px' }}>
-        <button
-          onClick={() => setShowAddForm(true)}
-          style={{
-            background: '#28a745',
-            color: 'white',
-            border: 'none',
-            padding: '10px 20px',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '16px'
-          }}
-        >
-          Add New Menu Item
-        </button>
-      </div>
+      {activeTab === 'orders' && (
+        <div>
+          <h3 style={{ color: '#333' }}>Active Orders</h3>
+          {orders.length === 0 ? (
+            <p style={{ color: '#666' }}>No active orders at the moment</p>
+          ) : (
+            <div style={{ marginTop: '20px' }}>
+              {orders.map(order => (
+                <div key={order.order_id} style={{
+                  background: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '20px',
+                  marginBottom: '20px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
+                    <div>
+                      <h4 style={{ color: '#333', margin: 0 }}>Order #{order.order_id}</h4>
+                      <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
+                        {new Date(order.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <span style={{
+                        background: getStatusColor(order.status),
+                        color: 'white',
+                        padding: '5px 15px',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        fontWeight: 'bold'
+                      }}>
+                        {order.status.replace(/_/g, ' ').toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ borderTop: '1px solid #eee', paddingTop: '15px', marginTop: '15px' }}>
+                    <h5 style={{ color: '#333', marginBottom: '10px' }}>Your Items:</h5>
+                    {order.OrderItems?.map(item => (
+                      <div key={item.order_item_id} style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        padding: '8px 0',
+                        borderBottom: '1px solid #f5f5f5'
+                      }}>
+                        <span style={{ color: '#333' }}>
+                          {item.MenuItem?.name || 'Item'} x {item.quantity}
+                        </span>
+                        <span style={{ color: '#333', fontWeight: 'bold' }}>
+                          ${parseFloat(item.price_at_order * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #eee' }}>
+                    <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
+                      <strong>Delivery Address:</strong> {order.delivery_address}
+                    </p>
+                    {order.special_instructions && (
+                      <p style={{ color: '#666', fontSize: '14px', margin: '5px 0' }}>
+                        <strong>Special Instructions:</strong> {order.special_instructions}
+                      </p>
+                    )}
+                  </div>
+
+                  {(order.status === 'pending' || order.status === 'confirmed' || order.status === 'preparing') && (
+                    <div style={{ marginTop: '15px' }}>
+                      <button
+                        onClick={() => handleMarkReady(order.order_id)}
+                        style={{
+                          background: '#28a745',
+                          color: 'white',
+                          border: 'none',
+                          padding: '10px 20px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          fontSize: '16px'
+                        }}
+                      >
+                        Mark as Ready for Delivery
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'menu' && (
+        <div>
+          <div style={{ marginBottom: '20px' }}>
+            <button
+              onClick={() => setShowAddForm(true)}
+              style={{
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                padding: '10px 20px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontSize: '16px'
+              }}
+            >
+              Add New Menu Item
+            </button>
+          </div>
 
       {showAddForm && (
         <div style={{
@@ -355,6 +516,8 @@ function ChefDashboardPage() {
             </div>
           ))}
         </div>
+        )}
+      </div>
       )}
     </div>
   );

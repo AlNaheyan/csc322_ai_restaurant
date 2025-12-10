@@ -3,7 +3,7 @@ const { Employee } = require('../models');
 
 const submitBid = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -34,7 +34,7 @@ const acceptBid = async (req, res) => {
     const { justification } = req.body;
     const result = await biddingService.acceptBid(
       req.params.bidId,
-      req.user.userId,
+      req.user.user_id,
       justification
     );
     res.json(result);
@@ -45,7 +45,7 @@ const acceptBid = async (req, res) => {
 
 const withdrawBid = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -59,7 +59,7 @@ const withdrawBid = async (req, res) => {
 
 const getMyBids = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -72,10 +72,30 @@ const getMyBids = async (req, res) => {
   }
 };
 
+const getReadyOrders = async (req, res) => {
+  try {
+    const orders = await biddingService.getReadyOrders();
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getOrdersWithBids = async (req, res) => {
+  try {
+    const orders = await biddingService.getOrdersWithBids();
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   submitBid,
   getBidsForOrder,
   acceptBid,
   withdrawBid,
-  getMyBids
+  getMyBids,
+  getReadyOrders,
+  getOrdersWithBids
 };

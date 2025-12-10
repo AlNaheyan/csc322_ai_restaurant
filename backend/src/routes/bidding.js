@@ -6,10 +6,12 @@ const { requireRole } = require('../middleware/roleCheck');
 
 router.use(authenticate);
 
+router.get('/orders/ready', requireRole('delivery'), biddingController.getReadyOrders);
 router.post('/orders/:orderId/bid', requireRole('delivery'), biddingController.submitBid);
 router.get('/bids/my-bids', requireRole('delivery'), biddingController.getMyBids);
 router.delete('/bids/:bidId', requireRole('delivery'), biddingController.withdrawBid);
 
+router.get('/orders/with-bids', requireRole('manager'), biddingController.getOrdersWithBids);
 router.get('/orders/:orderId/bids', requireRole('manager'), biddingController.getBidsForOrder);
 router.post('/bids/:bidId/accept', requireRole('manager'), biddingController.acceptBid);
 
