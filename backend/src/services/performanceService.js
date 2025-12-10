@@ -11,10 +11,12 @@ class PerformanceService {
       throw new Error('Employee not found');
     }
 
+    const targetType = employee.employee_type === 'chef' ? 'food' : 'delivery';
+
     const ratings = await Rating.findAll({
       where: {
         target_id: employeeId,
-        target_type: employee.role
+        target_type: targetType
       }
     });
 
@@ -51,7 +53,7 @@ class PerformanceService {
       });
     } else {
       actionTaken = 'termination';
-      await employee.User.update({ status: 'terminated' });
+      await employee.User.update({ is_active: false });
       await Warning.create({
         user_id: employee.user_id,
         warning_type: 'poor_performance',
@@ -86,7 +88,7 @@ class PerformanceService {
 
   async evaluateAllEmployees() {
     const employees = await Employee.findAll({
-      include: [{ model: User, where: { status: 'active' } }]
+      include: [{ model: User, where: { is_active: true } }]
     });
 
     const results = {
@@ -154,7 +156,7 @@ class PerformanceService {
       throw new Error('User not found');
     }
 
-    await user.update({ status: 'blacklisted' });
+    await user.update({ is_blacklisted: true, is_active: false });
 
     const blacklist = await Blacklist.create({
       user_id: userId,
@@ -189,8 +191,8 @@ class PerformanceService {
     await blacklist.update({ is_active: false });
 
     const user = await User.findByPk(blacklist.user_id);
-    if (user && user.status === 'blacklisted') {
-      await user.update({ status: 'active' });
+    if (user && user.is_blacklisted) {
+      await user.update({ is_blacklisted: false, is_active: true });
     }
 
     return blacklist;

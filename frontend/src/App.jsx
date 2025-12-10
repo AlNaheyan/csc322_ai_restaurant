@@ -14,6 +14,7 @@ import ChefDashboardPage from './pages/ChefDashboardPage';
 import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
 import ManagerComplaintReview from './pages/ManagerComplaintReview';
+import ManagerPerformanceReviewPage from './pages/ManagerPerformanceReviewPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
@@ -89,6 +90,11 @@ function App() {
           <Route path="/manager/complaints" element={
             <ProtectedRoute allowedRoles={['manager']}>
               <ManagerComplaintReview />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/performance" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerPerformanceReviewPage />
             </ProtectedRoute>
           } />
         </Routes>

@@ -171,25 +171,25 @@ const ManagerPerformanceReviewPage = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
               <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Employee</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Avg Rating</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Total Ratings</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Action Taken</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Bonus/Salary Change</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Employee</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Date</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Avg Rating</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Total Ratings</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Action Taken</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Bonus/Salary Change</th>
               </tr>
             </thead>
             <tbody>
               {performanceHistory.map((record) => (
                 <tr key={record.history_id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {record.Employee?.User?.first_name} {record.Employee?.User?.last_name}
                   </td>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {new Date(record.evaluation_date).toLocaleDateString()}
                   </td>
-                  <td style={{ padding: '12px' }}>{record.rating_average}</td>
-                  <td style={{ padding: '12px' }}>{record.total_ratings}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>{record.rating_average}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>{record.total_ratings}</td>
                   <td style={{ padding: '12px' }}>
                     <span style={{
                       padding: '4px 8px',
@@ -205,7 +205,7 @@ const ManagerPerformanceReviewPage = () => {
                       {record.action_taken || 'none'}
                     </span>
                   </td>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {record.bonus_amount && `+$${parseFloat(record.bonus_amount).toFixed(2)}`}
                     {record.salary_change && `${parseFloat(record.salary_change).toFixed(2)}`}
                   </td>
@@ -237,21 +237,21 @@ const ManagerPerformanceReviewPage = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
               <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Customer</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Email</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Total Spent</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Order Count</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Customer</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Email</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Total Spent</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Order Count</th>
               </tr>
             </thead>
             <tbody>
               {vipCustomers.map((customer) => (
                 <tr key={customer.customer_id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {customer.User?.first_name} {customer.User?.last_name}
                   </td>
-                  <td style={{ padding: '12px' }}>{customer.User?.email}</td>
-                  <td style={{ padding: '12px' }}>${parseFloat(customer.total_spent || 0).toFixed(2)}</td>
-                  <td style={{ padding: '12px' }}>{customer.order_count || 0}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>{customer.User?.email}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>${parseFloat(customer.total_spent || 0).toFixed(2)}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>{customer.order_count || 0}</td>
                 </tr>
               ))}
             </tbody>
@@ -264,23 +264,23 @@ const ManagerPerformanceReviewPage = () => {
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'white', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
             <thead>
               <tr style={{ background: '#f3f4f6', borderBottom: '1px solid #e5e7eb' }}>
-                <th style={{ padding: '12px', textAlign: 'left' }}>User</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Reason</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Blacklisted By</th>
-                <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>User</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Reason</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Blacklisted By</th>
+                <th style={{ padding: '12px', textAlign: 'left', color: '#333' }}>Date</th>
               </tr>
             </thead>
             <tbody>
               {blacklist.map((record) => (
                 <tr key={record.blacklist_id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {record.BlacklistedUser?.first_name} {record.BlacklistedUser?.last_name}
                   </td>
-                  <td style={{ padding: '12px' }}>{record.reason}</td>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>{record.reason}</td>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {record.BlacklistedBy?.first_name} {record.BlacklistedBy?.last_name}
                   </td>
-                  <td style={{ padding: '12px' }}>
+                  <td style={{ padding: '12px', color: '#333' }}>
                     {new Date(record.blacklisted_at).toLocaleDateString()}
                   </td>
                 </tr>

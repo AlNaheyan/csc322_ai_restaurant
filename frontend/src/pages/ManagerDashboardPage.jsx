@@ -123,12 +123,20 @@ const ManagerDashboardPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Manager Dashboard - Bid Management</h1>
-          <button
-            onClick={() => navigate('/manager/complaints')}
-            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-          >
-            Review Complaints
-          </button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => navigate('/manager/performance')}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+            >
+              Performance & VIP
+            </button>
+            <button
+              onClick={() => navigate('/manager/complaints')}
+              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition"
+            >
+              Review Complaints
+            </button>
+          </div>
         </div>
 
         {error && (

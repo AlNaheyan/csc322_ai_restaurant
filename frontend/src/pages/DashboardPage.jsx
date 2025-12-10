@@ -85,6 +85,25 @@ function DashboardPage() {
             VIP Member
           </span>
         )}
+        {!customer?.is_vip && (
+          <div style={{ marginTop: '15px', padding: '15px', background: '#e3f2fd', borderRadius: '4px', border: '1px solid #2196f3' }}>
+            <h4 style={{ color: '#1976d2', marginTop: 0, fontSize: '14px' }}>Become a VIP Member!</h4>
+            <p style={{ color: '#1976d2', fontSize: '13px', margin: '8px 0' }}>
+              VIP benefits: Free delivery, exclusive menu items, priority support, and your ratings count 2x!
+            </p>
+            <p style={{ color: '#1976d2', fontSize: '13px', margin: '5px 0' }}>
+              <strong>Requirements:</strong> Spend $100+ OR place 3+ orders (with no active complaints)
+            </p>
+            <div style={{ marginTop: '10px', fontSize: '13px' }}>
+              <p style={{ color: '#1976d2', margin: '3px 0' }}>
+                Progress: ${parseFloat(customer?.total_spent || 0).toFixed(2)} / $100 spent
+              </p>
+              <p style={{ color: '#1976d2', margin: '3px 0' }}>
+                {customer?.order_count || 0} / 3 orders placed
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div style={{ background: '#fff', border: '1px solid #ddd', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
