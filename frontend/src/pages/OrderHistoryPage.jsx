@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { orderService } from '../services/orderService';
 import socketService from '../services/socketService';
+import RatingForm from '../components/RatingForm';
+import ComplaintForm from '../components/ComplaintForm';
 
 function OrderHistoryPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ratingOrder, setRatingOrder] = useState(null);
+  const [ratingType, setRatingType] = useState(null);
+  const [showComplaintForm, setShowComplaintForm] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -174,8 +179,119 @@ function OrderHistoryPage() {
                   </p>
                 )}
               </div>
+
+              {order.status === 'delivered' && (
+                <div style={{ marginTop: '20px', paddingTop: '15px', borderTop: '1px solid #eee' }}>
+                  <h4 style={{ color: '#333', marginBottom: '10px' }}>Actions:</h4>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                    <button
+                      onClick={() => {
+                        setRatingOrder(order);
+                        setRatingType('food');
+                      }}
+                      style={{
+                        background: '#28a745',
+                        color: 'white',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Rate Food/Chef
+                    </button>
+                    <button
+                      onClick={() => {
+                        setRatingOrder(order);
+                        setRatingType('delivery');
+                      }}
+                      style={{
+                        background: '#17a2b8',
+                        color: 'white',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Rate Delivery
+                    </button>
+                    <button
+                      onClick={() => setShowComplaintForm(true)}
+                      style={{
+                        background: '#ffc107',
+                        color: '#333',
+                        border: 'none',
+                        padding: '10px 20px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      File Complaint/Compliment
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {ratingOrder && ratingType && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{ maxWidth: '500px', width: '100%', padding: '20px' }}>
+            <RatingForm
+              orderId={ratingOrder.order_id}
+              targetType={ratingType}
+              targetId={ratingType === 'food' ? ratingOrder.OrderItems?.[0]?.chef_id : ratingOrder.assigned_delivery_person}
+              targetName={ratingType === 'food' ? 'Chef' : 'Delivery Person'}
+              onSubmit={() => {
+                setRatingOrder(null);
+                setRatingType(null);
+                alert('Rating submitted successfully!');
+              }}
+              onCancel={() => {
+                setRatingOrder(null);
+                setRatingType(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {showComplaintForm && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{ maxWidth: '600px', width: '100%', padding: '20px' }}>
+            <ComplaintForm
+              onSubmit={() => {
+                setShowComplaintForm(false);
+                alert('Complaint/Compliment submitted successfully!');
+              }}
+              onCancel={() => setShowComplaintForm(false)}
+            />
+          </div>
         </div>
       )}
     </div>

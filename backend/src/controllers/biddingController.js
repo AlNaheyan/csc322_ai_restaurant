@@ -3,7 +3,7 @@ const { Employee } = require('../models');
 
 const submitBid = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -34,7 +34,7 @@ const acceptBid = async (req, res) => {
     const { justification } = req.body;
     const result = await biddingService.acceptBid(
       req.params.bidId,
-      req.user.user_id,
+      req.user.userId,
       justification
     );
     res.json(result);
@@ -45,7 +45,7 @@ const acceptBid = async (req, res) => {
 
 const withdrawBid = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -59,7 +59,7 @@ const withdrawBid = async (req, res) => {
 
 const getMyBids = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }

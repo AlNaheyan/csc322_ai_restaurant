@@ -127,7 +127,7 @@ function MenuItemDetailPage() {
                 ({parseFloat(item.average_rating).toFixed(1)} / {item.total_ratings} ratings)
               </span>
             </div>
-            <p style={{ color: '#333' }}>Orders: {item.order_count}</p>
+            <p style={{ color: '#FFFF' }}>Orders: {item.order_count}</p>
           </div>
 
           <div style={{ marginBottom: '20px' }}>

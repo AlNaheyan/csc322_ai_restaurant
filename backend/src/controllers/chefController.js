@@ -4,7 +4,7 @@ const { Employee } = require('../models');
 class ChefController {
   async getProfile(req, res) {
     try {
-      const profile = await chefService.getChefProfile(req.user.user_id);
+      const profile = await chefService.getChefProfile(req.user.userId);
       res.json(profile);
     } catch (error) {
       res.status(404).json({ error: error.message });
@@ -14,7 +14,7 @@ class ChefController {
   async getDashboard(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -31,7 +31,7 @@ class ChefController {
   async getMyMenuItems(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -48,7 +48,7 @@ class ChefController {
   async createMenuItem(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -65,7 +65,7 @@ class ChefController {
   async updateMenuItem(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -86,7 +86,7 @@ class ChefController {
   async deleteMenuItem(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -103,7 +103,7 @@ class ChefController {
   async getMyOrders(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {
@@ -120,7 +120,7 @@ class ChefController {
   async markOrderReady(req, res) {
     try {
       const employee = await Employee.findOne({
-        where: { user_id: req.user.user_id }
+        where: { user_id: req.user.userId }
       });
 
       if (!employee) {

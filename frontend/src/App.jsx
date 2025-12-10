@@ -13,6 +13,7 @@ import OrderHistoryPage from './pages/OrderHistoryPage';
 import ChefDashboardPage from './pages/ChefDashboardPage';
 import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
+import ManagerComplaintReview from './pages/ManagerComplaintReview';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
@@ -83,6 +84,11 @@ function App() {
           <Route path="/manager/dashboard" element={
             <ProtectedRoute allowedRoles={['manager']}>
               <ManagerDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/complaints" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerComplaintReview />
             </ProtectedRoute>
           } />
         </Routes>

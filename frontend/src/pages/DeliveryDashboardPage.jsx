@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import api from '../services/api';
 import socketService from '../services/socketService';
+import RatingDisplay from '../components/RatingDisplay';
 
 function DeliveryDashboardPage() {
   const { user } = useSelector((state) => state.auth);
@@ -10,8 +11,12 @@ function DeliveryDashboardPage() {
   const [myBids, setMyBids] = useState([]);
   const [readyOrders, setReadyOrders] = useState([]);
   const [stats, setStats] = useState(null);
+  const [ratings, setRatings] = useState([]);
+  const [complaints, setComplaints] = useState([]);
+  const [receivedComplaints, setReceivedComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('available');
+  const [complaintsTab, setComplaintsTab] = useState('received');
   const [bidForm, setBidForm] = useState({});
   const [showBidForm, setShowBidForm] = useState(null);
 
@@ -19,6 +24,12 @@ function DeliveryDashboardPage() {
     loadData();
     loadReadyOrders();
     loadMyBids();
+    if (activeTab === 'ratings') {
+      loadRatings();
+    }
+    if (activeTab === 'complaints') {
+      loadComplaints();
+    }
 
     socketService.on('new_order_ready', handleNewOrderReady);
     socketService.on('bid_accepted', handleBidAccepted);
@@ -29,7 +40,7 @@ function DeliveryDashboardPage() {
       socketService.off('bid_accepted', handleBidAccepted);
       socketService.off('bid_rejected', handleBidRejected);
     };
-  }, []);
+  }, [activeTab]);
 
   const handleNewOrderReady = (data) => {
     loadReadyOrders();
@@ -79,6 +90,54 @@ function DeliveryDashboardPage() {
       setMyBids(response.data);
     } catch (err) {
       console.error('Failed to load bids:', err);
+    }
+  };
+
+  const loadRatings = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/delivery/profile', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      const profileData = await response.json();
+
+      if (response.ok && profileData.employee_id) {
+        const ratingsResponse = await fetch(`http://localhost:3001/api/ratings/employees/${profileData.employee_id}/ratings`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        const ratingsData = await ratingsResponse.json();
+        if (ratingsResponse.ok) {
+          setRatings(ratingsData.data);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load ratings:', err);
+    }
+  };
+
+  const loadComplaints = async () => {
+    try {
+      const [filedRes, receivedRes] = await Promise.all([
+        fetch('http://localhost:3001/api/complaints/my?role=filer', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        }),
+        fetch('http://localhost:3001/api/complaints/my?role=subject', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        })
+      ]);
+
+      const [filedData, receivedData] = await Promise.all([
+        filedRes.json(),
+        receivedRes.json()
+      ]);
+
+      if (filedRes.ok) setComplaints(filedData.data || []);
+      if (receivedRes.ok) setReceivedComplaints(receivedData.data || []);
+    } catch (err) {
+      console.error('Failed to load complaints:', err);
     }
   };
 
@@ -219,6 +278,32 @@ function DeliveryDashboardPage() {
           }}
         >
           My Deliveries ({myDeliveries.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('ratings')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'ratings' ? '#007bff' : '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          My Ratings
+        </button>
+        <button
+          onClick={() => setActiveTab('complaints')}
+          style={{
+            padding: '10px 20px',
+            background: activeTab === 'complaints' ? '#007bff' : '#6c757d',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
+        >
+          Complaints
         </button>
       </div>
 
@@ -563,6 +648,241 @@ function DeliveryDashboardPage() {
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'ratings' && (
+        <div>
+          <h3 style={{ color: '#333' }}>My Ratings & Reviews</h3>
+          {ratings.length === 0 ? (
+            <p style={{ color: '#666' }}>No ratings received yet</p>
+          ) : (
+            <div style={{ marginTop: '20px' }}>
+              {ratings.map(rating => (
+                <div key={rating.rating_id} style={{
+                  color: '#333',
+                  background: 'white',
+                  border: '1px solid #000000ff',
+                  borderRadius: '8px',
+                  padding: '20px',
+                  marginBottom: '15px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <div>
+                      <RatingDisplay rating={rating.rating} showCount={false} />
+                      <p style={{ color: '#666', fontSize: '14px', margin: '5px 0 0 0' }}>
+                        From: {rating.Customer?.User?.first_name} {rating.Customer?.User?.last_name}
+                        {rating.is_vip_rating && <span style={{ color: '#f39c12', fontWeight: 'bold', marginLeft: '8px' }}>⭐ VIP (Counts 2x)</span>}
+                      </p>
+                    </div>
+                    <p style={{ color: '#999', fontSize: '12px' }}>
+                      {new Date(rating.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  {rating.comment && (
+                    <p style={{ color: '#333', fontSize: '14px', marginTop: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '4px' }}>
+                      "{rating.comment}"
+                    </p>
+                  )}
+                  <p style={{ color: '#999', fontSize: '12px', marginTop: '8px' }}>
+                    Order #{rating.order_id}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'complaints' && (
+        <div>
+          <h3 style={{ color: '#333' }}>Complaints & Compliments</h3>
+
+          <div style={{ marginBottom: '20px', borderBottom: '1px solid #ddd' }}>
+            <button
+              onClick={() => setComplaintsTab('received')}
+              style={{
+                padding: '10px 20px',
+                background: complaintsTab === 'received' ? '#007bff' : 'transparent',
+                color: complaintsTab === 'received' ? 'white' : '#333',
+                border: 'none',
+                borderBottom: complaintsTab === 'received' ? '2px solid #007bff' : 'none',
+                cursor: 'pointer',
+                fontSize: '14px'
+              }}
+            >
+              Against Me ({receivedComplaints.length})
+            </button>
+            <button
+              onClick={() => setComplaintsTab('filed')}
+              style={{
+                padding: '10px 20px',
+                background: complaintsTab === 'filed' ? '#007bff' : 'transparent',
+                color: complaintsTab === 'filed' ? 'white' : '#333',
+                border: 'none',
+                borderBottom: complaintsTab === 'filed' ? '2px solid #007bff' : 'none',
+                cursor: 'pointer',
+                fontSize: '14px',
+                marginLeft: '10px'
+              }}
+            >
+              Filed by Me ({complaints.length})
+            </button>
+          </div>
+
+          {complaintsTab === 'received' ? (
+            receivedComplaints.length === 0 ? (
+              <p style={{ color: '#666' }}>No complaints or compliments received</p>
+            ) : (
+              <div style={{ marginTop: '20px' }}>
+                {receivedComplaints.map(complaint => (
+                  <div key={complaint.complaint_id} style={{
+                    background: 'white',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    marginBottom: '15px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                      <div>
+                        <span style={{
+                          background: complaint.complaint_type === 'complaint' ? '#dc3545' : '#28a745',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          marginRight: '10px'
+                        }}>
+                          {complaint.complaint_type?.toUpperCase()}
+                        </span>
+                        <span style={{
+                          background: complaint.status === 'resolved' ? '#6c757d' : complaint.status === 'under_review' ? '#ffc107' : '#007bff',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}>
+                          {complaint.status?.replace('_', ' ').toUpperCase()}
+                        </span>
+                        {complaint.is_vip_complaint && (
+                          <span style={{
+                            background: '#f39c12',
+                            color: 'white',
+                            padding: '4px 12px',
+                            borderRadius: '12px',
+                            fontSize: '12px',
+                            fontWeight: 'bold',
+                            marginLeft: '10px'
+                          }}>
+                            VIP
+                          </span>
+                        )}
+                      </div>
+                      <span style={{ color: '#999', fontSize: '12px' }}>
+                        {new Date(complaint.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>
+                      Filed by: {complaint.Filer ? `${complaint.Filer.first_name} ${complaint.Filer.last_name}` : "Unknown" || 'Unknown'}
+                    </p>
+                    {complaint.category && (
+                      <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>
+                        Category: {complaint.category}
+                      </p>
+                    )}
+                    <p style={{ color: '#333', fontSize: '14px', marginTop: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '4px' }}>
+                      {complaint.description}
+                    </p>
+                    {complaint.manager_decision && (
+                      <div style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        background: complaint.manager_decision === 'upheld' ? '#f8d7da' : '#d4edda',
+                        border: `1px solid ${complaint.manager_decision === 'upheld' ? '#f5c6cb' : '#c3e6cb'}`,
+                        borderRadius: '4px'
+                      }}>
+                        <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Manager Decision: {complaint.manager_decision?.toUpperCase()}
+                        </p>
+                        {complaint.manager_notes && (
+                          <p style={{ fontSize: '14px' }}>{complaint.manager_notes}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
+          ) : (
+            complaints.length === 0 ? (
+              <p style={{ color: '#666' }}>You haven't filed any complaints or compliments</p>
+            ) : (
+              <div style={{ marginTop: '20px' }}>
+                {complaints.map(complaint => (
+                  <div key={complaint.complaint_id} style={{
+                    background: 'white',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    padding: '20px',
+                    marginBottom: '15px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                      <div>
+                        <span style={{
+                          background: complaint.complaint_type === 'complaint' ? '#dc3545' : '#28a745',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold',
+                          marginRight: '10px'
+                        }}>
+                          {complaint.complaint_type?.toUpperCase()}
+                        </span>
+                        <span style={{
+                          background: complaint.status === 'resolved' ? '#6c757d' : complaint.status === 'under_review' ? '#ffc107' : '#007bff',
+                          color: 'white',
+                          padding: '4px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: 'bold'
+                        }}>
+                          {complaint.status?.replace('_', ' ').toUpperCase()}
+                        </span>
+                      </div>
+                      <span style={{ color: '#999', fontSize: '12px' }}>
+                        {new Date(complaint.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>
+                      Subject: {complaint.Subject ? `${complaint.Subject.first_name} ${complaint.Subject.last_name}` : "Unknown" || 'Unknown'}
+                    </p>
+                    <p style={{ color: '#333', fontSize: '14px', marginTop: '10px', padding: '10px', background: '#f8f9fa', borderRadius: '4px' }}>
+                      {complaint.description}
+                    </p>
+                    {complaint.manager_decision && (
+                      <div style={{
+                        marginTop: '10px',
+                        padding: '10px',
+                        background: complaint.manager_decision === 'upheld' ? '#d4edda' : '#f8d7da',
+                        border: `1px solid ${complaint.manager_decision === 'upheld' ? '#c3e6cb' : '#f5c6cb'}`,
+                        borderRadius: '4px'
+                      }}>
+                        <p style={{ fontWeight: 'bold', marginBottom: '5px' }}>
+                          Manager Decision: {complaint.manager_decision?.toUpperCase()}
+                        </p>
+                        {complaint.manager_notes && (
+                          <p style={{ fontSize: '14px' }}>{complaint.manager_notes}</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )
           )}
         </div>
       )}

@@ -12,7 +12,7 @@ const getAvailableOrders = async (req, res) => {
 
 const getMyDeliveries = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -26,7 +26,7 @@ const getMyDeliveries = async (req, res) => {
 
 const acceptDelivery = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -40,7 +40,7 @@ const acceptDelivery = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }
@@ -59,7 +59,7 @@ const updateOrderStatus = async (req, res) => {
 
 const getDeliveryStats = async (req, res) => {
   try {
-    const employee = await Employee.findOne({ where: { user_id: req.user.user_id } });
+    const employee = await Employee.findOne({ where: { user_id: req.user.userId } });
     if (!employee) {
       return res.status(404).json({ error: 'Employee profile not found' });
     }

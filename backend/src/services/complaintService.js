@@ -34,8 +34,8 @@ class ComplaintService {
         status: { [Op.in]: ['pending', 'under_review'] }
       },
       include: [
-        { model: User, as: 'Filer', attributes: ['user_id', 'username', 'email'] },
-        { model: User, as: 'Subject', attributes: ['user_id', 'username', 'email'] }
+        { model: User, as: 'Filer', attributes: ['user_id', 'email', 'first_name', 'last_name'] },
+        { model: User, as: 'Subject', attributes: ['user_id', 'email', 'first_name', 'last_name'] }
       ],
       order: [
         ['is_vip_complaint', 'DESC'], // VIP complaints first
@@ -172,9 +172,9 @@ class ComplaintService {
     const complaints = await Complaint.findAll({
       where,
       include: [
-        { model: User, as: 'Filer', attributes: ['user_id', 'username'] },
-        { model: User, as: 'Subject', attributes: ['user_id', 'username'] },
-        { model: User, as: 'Resolver', attributes: ['user_id', 'username'] }
+        { model: User, as: 'Filer', attributes: ['user_id', 'email', 'first_name', 'last_name'] },
+        { model: User, as: 'Subject', attributes: ['user_id', 'email', 'first_name', 'last_name'] },
+        { model: User, as: 'Resolver', attributes: ['user_id', 'email', 'first_name', 'last_name'] }
       ],
       order: [['created_at', 'DESC']]
     });
