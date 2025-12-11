@@ -34,6 +34,9 @@ class AuthController {
       const user = await authService.getCurrentUser(req.user.userId);
       res.json(user);
     } catch (error) {
+      console.error('getMe error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error parent:', error.parent);
       next(error);
     }
   }

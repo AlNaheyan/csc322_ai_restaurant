@@ -322,7 +322,7 @@ const ManagerDashboardPage = () => {
                         ${parseFloat(bid.bid_amount).toFixed(2)}
                       </p>
                       <p style={{ color: '#999', fontSize: '13px', margin: '0' }}>
-                        {bid.estimated_time_minutes} min
+                        {bid.estimated_time} min
                       </p>
                     </div>
                   </div>
