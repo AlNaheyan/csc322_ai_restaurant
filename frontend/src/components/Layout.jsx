@@ -31,7 +31,7 @@ function Layout({ children }) {
           <nav style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 15px)', flexWrap: 'wrap' }}>
             <Link to="/menu" style={{ color: 'white', textDecoration: 'none' }}>Menu</Link>
             <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
-            {isAuthenticated && (
+            {isAuthenticated && user?.role !== 'visitor' && (
               <>
                 <Link to="/discussions" style={{ color: 'white', textDecoration: 'none' }}>Discussions</Link>
                 <Link to="/kb/contribute" style={{ color: 'white', textDecoration: 'none' }}>Contribute KB</Link>
