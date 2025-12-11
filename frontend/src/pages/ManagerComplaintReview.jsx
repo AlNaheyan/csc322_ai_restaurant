@@ -58,9 +58,10 @@ export default function ManagerComplaintReview() {
         throw new Error(data.message || "Failed to review complaint")
       }
 
+      alert("Complaint review submitted successfully!")
       setReviewingId(null)
       setNotes("")
-      fetchComplaints()
+      await fetchComplaints()
     } catch (err) {
       alert(err.message)
     }
