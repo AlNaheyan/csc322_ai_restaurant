@@ -199,6 +199,10 @@ class CustomerService {
       registration_status: "approved",
     });
 
+    await customer.User.update({
+      role: "customer",
+    });
+
     return {
       message: "Registration approved successfully",
       customer,

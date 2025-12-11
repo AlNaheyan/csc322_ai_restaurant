@@ -104,80 +104,191 @@ export default function ManagerRegistrationApprovalPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading pending registrations...</div>
+      <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+        Loading pending registrations...
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Registration Approvals</h1>
-        <p className="text-gray-600">Review and approve customer registration requests</p>
+    <div style={{
+      padding: 'clamp(20px, 4vw, 50px)',
+      maxWidth: '1400px',
+      width: '100%',
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{
+          color: '#fff',
+          fontSize: 'clamp(28px, 5vw, 42px)',
+          fontWeight: '700',
+          margin: '0 0 8px 0'
+        }}>
+          Registration Approvals
+        </h1>
+        <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+          Review and approve customer registration requests
+        </p>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#ef4444',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px'
+        }}>
           {error}
         </div>
       )}
 
       {registrations.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-8 text-center">
-          <Clock className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <p className="text-gray-500 text-lg">No pending registrations</p>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '60px',
+          borderRadius: '12px',
+          textAlign: 'center',
+          backdropFilter: 'blur(4px)'
+        }}>
+          <Clock size={48} style={{ color: '#22c55e', margin: '0 auto 16px', display: 'block' }} />
+          <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+            No pending registrations
+          </p>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div style={{ display: 'grid', gap: '16px' }}>
           {registrations.map((reg) => (
-            <div key={reg.customer_id} className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center mb-3">
-                    <User className="h-5 w-5 text-gray-400 mr-2" />
-                    <h3 className="text-xl font-semibold text-gray-800">
+            <div key={reg.customer_id} style={{
+              background: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '24px',
+              borderRadius: '12px',
+              backdropFilter: 'blur(4px)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+                    <User size={20} style={{ color: '#667eea', marginRight: '12px' }} />
+                    <h3 style={{
+                      color: '#fff',
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      margin: '0'
+                    }}>
                       {reg.User.first_name} {reg.User.last_name}
                     </h3>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '16px',
+                    marginBottom: '20px'
+                  }}>
                     <div>
-                      <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-gray-800">{reg.User.email}</p>
+                      <p style={{ color: '#999', fontSize: '12px', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Email
+                      </p>
+                      <p style={{ color: '#fff', fontSize: '14px', margin: '0' }}>
+                        {reg.User.email}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Phone</p>
-                      <p className="text-gray-800">{reg.User.phone || 'N/A'}</p>
+                      <p style={{ color: '#999', fontSize: '12px', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Phone
+                      </p>
+                      <p style={{ color: '#fff', fontSize: '14px', margin: '0' }}>
+                        {reg.User.phone || 'N/A'}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Registration Date</p>
-                      <p className="text-gray-800">
+                      <p style={{ color: '#999', fontSize: '12px', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Registration Date
+                      </p>
+                      <p style={{ color: '#fff', fontSize: '14px', margin: '0' }}>
                         {new Date(reg.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-500">Status</p>
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                        <Clock className="h-3 w-3 mr-1" />
+                      <p style={{ color: '#999', fontSize: '12px', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Status
+                      </p>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        padding: '4px 12px',
+                        background: 'rgba(245, 158, 11, 0.15)',
+                        color: '#f59e0b',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px',
+                        gap: '6px'
+                      }}>
+                        <Clock size={12} />
                         Pending
                       </span>
                     </div>
                   </div>
 
                   {rejectingId === reg.customer_id ? (
-                    <div className="mt-4 space-y-3">
+                    <div style={{ marginTop: '20px' }}>
+                      <label style={{
+                        display: 'block',
+                        marginBottom: '8px',
+                        color: '#ccc',
+                        fontSize: '13px',
+                        fontWeight: '500'
+                      }}>
+                        Rejection Reason
+                      </label>
                       <textarea
                         value={rejectionReason}
                         onChange={(e) => setRejectionReason(e.target.value)}
                         placeholder="Enter rejection reason..."
-                        className="w-full p-3 border rounded-md focus:ring-2 focus:ring-red-500 focus:border-transparent"
                         rows={3}
+                        style={{
+                          width: '100%',
+                          padding: '10px 14px',
+                          background: 'rgba(255, 255, 255, 0.06)',
+                          border: '1px solid rgba(255, 255, 255, 0.12)',
+                          borderRadius: '8px',
+                          color: '#fff',
+                          fontSize: '14px',
+                          boxSizing: 'border-box',
+                          fontFamily: 'inherit',
+                          resize: 'vertical',
+                          outline: 'none',
+                          marginBottom: '12px'
+                        }}
                       />
-                      <div className="flex gap-2">
+                      <div style={{ display: 'flex', gap: '12px' }}>
                         <button
                           onClick={() => handleReject(reg.customer_id)}
-                          className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                          style={{
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            color: '#ef4444',
+                            border: 'none',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
                         >
                           Confirm Rejection
                         </button>
@@ -186,26 +297,86 @@ export default function ManagerRegistrationApprovalPage() {
                             setRejectingId(null);
                             setRejectionReason('');
                           }}
-                          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.06)',
+                            color: '#999',
+                            border: 'none',
+                            padding: '10px 20px',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                          }}
                         >
                           Cancel
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex gap-3">
+                    <div style={{ display: 'flex', gap: '12px' }}>
                       <button
                         onClick={() => handleApprove(reg.customer_id)}
-                        className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                        style={{
+                          background: 'rgba(34, 197, 94, 0.15)',
+                          color: '#22c55e',
+                          border: 'none',
+                          padding: '10px 20px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
                       >
-                        <CheckCircle className="h-4 w-4 mr-2" />
+                        <CheckCircle size={16} />
                         Approve
                       </button>
                       <button
                         onClick={() => setRejectingId(reg.customer_id)}
-                        className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.15)',
+                          color: '#ef4444',
+                          border: 'none',
+                          padding: '10px 20px',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          transition: 'all 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                          e.currentTarget.style.transform = 'translateY(0)';
+                        }}
                       >
-                        <XCircle className="h-4 w-4 mr-2" />
+                        <XCircle size={16} />
                         Reject
                       </button>
                     </div>

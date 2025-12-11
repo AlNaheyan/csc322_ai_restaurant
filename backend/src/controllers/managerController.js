@@ -1,5 +1,7 @@
 const customerService = require("../services/customerService");
 const analyticsService = require("../services/analyticsService");
+const memoService = require("../services/memoService");
+const discussionService = require("../services/discussionService");
 
 class ManagerController {
   async getPendingRegistrations(req, res, next) {
@@ -111,6 +113,96 @@ class ManagerController {
       const days = parseInt(req.query.days) || 30;
       const summary = await analyticsService.getFinancialSummary(days);
       res.json(summary);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async createMemo(req, res, next) {
+    try {
+      const { referenceType, referenceId, memoText } = req.body;
+      const memo = await memoService.createMemo(req.user.userId, referenceType, referenceId, memoText);
+      res.status(201).json(memo);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMemosByReference(req, res, next) {
+    try {
+      const { referenceType, referenceId } = req.params;
+      const memos = await memoService.getMemosByReference(referenceType, parseInt(referenceId));
+      res.json(memos);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getAllMemos(req, res, next) {
+    try {
+      const managerId = req.query.managerId ? parseInt(req.query.managerId) : null;
+      const memos = await memoService.getAllMemos(managerId);
+      res.json(memos);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getMemoById(req, res, next) {
+    try {
+      const { memoId } = req.params;
+      const memo = await memoService.getMemoById(parseInt(memoId));
+      res.json(memo);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateMemo(req, res, next) {
+    try {
+      const { memoId } = req.params;
+      const { memoText } = req.body;
+      const memo = await memoService.updateMemo(parseInt(memoId), req.user.userId, memoText);
+      res.json(memo);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteMemo(req, res, next) {
+    try {
+      const { memoId } = req.params;
+      const result = await memoService.deleteMemo(parseInt(memoId), req.user.userId);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getReportedPosts(req, res, next) {
+    try {
+      const reportedPosts = await discussionService.getReportedPosts();
+      res.json(reportedPosts);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async unreportPost(req, res, next) {
+    try {
+      const { postId } = req.params;
+      const result = await discussionService.unreportPost(parseInt(postId));
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteReportedPost(req, res, next) {
+    try {
+      const { postId } = req.params;
+      const result = await discussionService.deletePost(parseInt(postId), req.user.userId, req.user.role);
+      res.json(result);
     } catch (error) {
       next(error);
     }

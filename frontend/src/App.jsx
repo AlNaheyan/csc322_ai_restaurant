@@ -16,6 +16,9 @@ import ManagerDashboardPage from './pages/ManagerDashboardPage';
 import ManagerComplaintReview from './pages/ManagerComplaintReview';
 import ManagerPerformanceReviewPage from './pages/ManagerPerformanceReviewPage';
 import ManagerRegistrationApprovalPage from './pages/ManagerRegistrationApprovalPage';
+import ManagerAnalyticsDashboardPage from './pages/ManagerAnalyticsDashboardPage';
+import ManagerMemosPage from './pages/ManagerMemosPage';
+import ManagerDiscussionModerationPage from './pages/ManagerDiscussionModerationPage';
 import ChatPage from './pages/ChatPage';
 import ManagerKBPage from './pages/ManagerKBPage';
 import ContributeKBPage from './pages/ContributeKBPage';
@@ -107,6 +110,21 @@ function App() {
           <Route path="/manager/registrations" element={
             <ProtectedRoute allowedRoles={['manager']}>
               <ManagerRegistrationApprovalPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/analytics" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerAnalyticsDashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/memos" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerMemosPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/discussions/moderation" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerDiscussionModerationPage />
             </ProtectedRoute>
           } />
           <Route path="/chat" element={<ChatPage />} />

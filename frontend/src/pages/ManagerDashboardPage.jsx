@@ -119,140 +119,288 @@ const ManagerDashboardPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Manager Dashboard - Bid Management</h1>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={() => navigate('/manager/performance')}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-            >
-              Performance & VIP
-            </button>
-            <button
-              onClick={() => navigate('/manager/complaints')}
-              className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-4 rounded-lg transition"
-            >
-              Review Complaints
-            </button>
-          </div>
+    <div style={{
+      padding: 'clamp(20px, 4vw, 50px)',
+      maxWidth: '1400px',
+      width: '100%',
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{
+          color: '#fff',
+          fontSize: 'clamp(28px, 5vw, 42px)',
+          fontWeight: '700',
+          margin: '0 0 8px 0'
+        }}>
+          Manager Dashboard
+        </h1>
+        <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+          Manage all aspects of the restaurant system
+        </p>
+      </div>
+
+      {/* Quick Access Navigation Cards */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '16px',
+        marginBottom: '50px'
+      }}>
+        {[
+          { path: '/manager/registrations', icon: '👥', label: 'Registrations', color: '#3b82f6' },
+          { path: '/manager/analytics', icon: '📊', label: 'Analytics', color: '#8b5cf6' },
+          { path: '/manager/performance', icon: '⭐', label: 'Performance', color: '#10b981' },
+          { path: '/manager/complaints', icon: '🔔', label: 'Complaints', color: '#f59e0b' },
+          { path: '/manager/memos', icon: '📝', label: 'Memos', color: '#6366f1' },
+          { path: '/manager/discussions/moderation', icon: '🛡️', label: 'Moderation', color: '#ef4444' },
+          { path: '/manager/kb', icon: '📚', label: 'KB Review', color: '#14b8a6' }
+        ].map((item) => (
+          <button
+            key={item.path}
+            onClick={() => navigate(item.path)}
+            style={{
+              background: `linear-gradient(135deg, ${item.color} 0%, ${item.color}dd 100%)`,
+              border: 'none',
+              padding: '24px 16px',
+              borderRadius: '12px',
+              color: '#fff',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.boxShadow = '0 8px 12px rgba(0, 0, 0, 0.4)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3)';
+            }}
+          >
+            <span style={{ fontSize: '32px' }}>{item.icon}</span>
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <h2 style={{
+        color: '#fff',
+        fontSize: 'clamp(22px, 4vw, 28px)',
+        fontWeight: '700',
+        margin: '0 0 24px 0'
+      }}>
+        Bid Management
+      </h2>
+
+      {error && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#ef4444',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px'
+        }}>
+          {error}
+        </div>
+      )}
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
+        {/* Orders Ready for Delivery */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '24px',
+          borderRadius: '12px',
+          backdropFilter: 'blur(4px)'
+        }}>
+          <h3 style={{ color: '#fff', fontSize: '20px', marginTop: '0', marginBottom: '20px' }}>
+            Orders Ready for Delivery
+          </h3>
+
+          {readyOrders.length === 0 ? (
+            <p style={{ color: '#999', margin: '0' }}>No orders ready for delivery</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {readyOrders.map((order) => (
+                <div
+                  key={order.order_id}
+                  onClick={() => handleSelectOrder(order)}
+                  style={{
+                    background: selectedOrder?.order_id === order.order_id
+                      ? 'rgba(59, 130, 246, 0.15)'
+                      : 'rgba(255, 255, 255, 0.04)',
+                    border: selectedOrder?.order_id === order.order_id
+                      ? '1px solid rgba(59, 130, 246, 0.3)'
+                      : '1px solid rgba(255, 255, 255, 0.08)',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (selectedOrder?.order_id !== order.order_id) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (selectedOrder?.order_id !== order.order_id) {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.04)';
+                    }
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <div>
+                      <p style={{ color: '#fff', fontWeight: '600', margin: '0 0 8px 0' }}>
+                        Order #{order.order_id}
+                      </p>
+                      <p style={{ color: '#999', fontSize: '14px', margin: '0 0 4px 0' }}>
+                        {order.delivery_address}
+                      </p>
+                      <p style={{ color: '#666', fontSize: '13px', margin: '0' }}>
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ color: '#22c55e', fontWeight: '700', fontSize: '18px', margin: '0 0 4px 0' }}>
+                        ${parseFloat(order.total).toFixed(2)}
+                      </p>
+                      <p style={{ color: '#999', fontSize: '13px', margin: '0' }}>
+                        {order.assigned_delivery_person ? 'Assigned' : 'Pending'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+        {/* Bids for Selected Order */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '24px',
+          borderRadius: '12px',
+          backdropFilter: 'blur(4px)'
+        }}>
+          <h3 style={{ color: '#fff', fontSize: '20px', marginTop: '0', marginBottom: '20px' }}>
+            {selectedOrder ? `Bids for Order #${selectedOrder.order_id}` : 'Select an Order'}
+          </h3>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Orders Ready for Delivery */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Orders Ready for Delivery</h2>
-
-            {readyOrders.length === 0 ? (
-              <p className="text-gray-500">No orders ready for delivery</p>
-            ) : (
-              <div className="space-y-4">
-                {readyOrders.map((order) => (
-                  <div
-                    key={order.order_id}
-                    className={`border rounded-lg p-4 cursor-pointer transition ${
-                      selectedOrder?.order_id === order.order_id
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-blue-300'
-                    }`}
-                    onClick={() => handleSelectOrder(order)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold">Order #{order.order_id}</p>
-                        <p className="text-sm text-gray-600">{order.delivery_address}</p>
-                        <p className="text-sm text-gray-500">
-                          {new Date(order.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg">${parseFloat(order.total).toFixed(2)}</p>
-                        <p className="text-sm text-gray-500">
-                          {order.assigned_delivery_person ? 'Assigned' : 'Pending'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Bids for Selected Order */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              {selectedOrder ? `Bids for Order #${selectedOrder.order_id}` : 'Select an Order'}
-            </h2>
-
-            {!selectedOrder ? (
-              <p className="text-gray-500">Select an order to view bids</p>
-            ) : bids.length === 0 ? (
-              <p className="text-gray-500">No bids yet for this order</p>
-            ) : (
-              <div className="space-y-4">
-                {bids.map((bid) => (
-                  <div key={bid.bid_id} className="border border-gray-200 rounded-lg p-4">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <p className="font-semibold">
-                          {bid.DeliveryPerson?.User?.first_name} {bid.DeliveryPerson?.User?.last_name}
-                        </p>
-                        <p className="text-sm text-gray-600">{bid.DeliveryPerson?.User?.email}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-lg text-green-600">
-                          ${parseFloat(bid.bid_amount).toFixed(2)}
-                        </p>
-                        <p className="text-sm text-gray-500">{bid.estimated_time_minutes} min</p>
-                      </div>
-                    </div>
-
-                    {bid.notes && (
-                      <p className="text-sm text-gray-600 mb-3">
-                        <span className="font-medium">Notes:</span> {bid.notes}
+          {!selectedOrder ? (
+            <p style={{ color: '#999', margin: '0' }}>Select an order to view bids</p>
+          ) : bids.length === 0 ? (
+            <p style={{ color: '#999', margin: '0' }}>No bids yet for this order</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {bids.map((bid) => (
+                <div key={bid.bid_id} style={{
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                  padding: '16px',
+                  borderRadius: '8px'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '12px' }}>
+                    <div>
+                      <p style={{ color: '#fff', fontWeight: '600', margin: '0 0 4px 0' }}>
+                        {bid.DeliveryPerson?.User?.first_name} {bid.DeliveryPerson?.User?.last_name}
                       </p>
-                    )}
-
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-gray-500">Rating:</span>
-                      <span className="text-sm font-medium">
-                        {parseFloat(bid.DeliveryPerson?.average_rating || 0).toFixed(1)} ⭐
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        ({bid.DeliveryPerson?.total_ratings || 0} ratings)
-                      </span>
+                      <p style={{ color: '#999', fontSize: '13px', margin: '0' }}>
+                        {bid.DeliveryPerson?.User?.email}
+                      </p>
                     </div>
-
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Justification for accepting this bid:
-                      </label>
-                      <textarea
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                        rows="2"
-                        placeholder="Explain why you are accepting this bid..."
-                        value={justification}
-                        onChange={(e) => setJustification(e.target.value)}
-                      />
-                      <button
-                        onClick={() => handleAcceptBid(bid.bid_id)}
-                        className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
-                      >
-                        Accept Bid
-                      </button>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ color: '#22c55e', fontWeight: '700', fontSize: '18px', margin: '0 0 4px 0' }}>
+                        ${parseFloat(bid.bid_amount).toFixed(2)}
+                      </p>
+                      <p style={{ color: '#999', fontSize: '13px', margin: '0' }}>
+                        {bid.estimated_time_minutes} min
+                      </p>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+
+                  {bid.notes && (
+                    <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '12px' }}>
+                      <span style={{ fontWeight: '600' }}>Notes:</span> {bid.notes}
+                    </p>
+                  )}
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                    <span style={{ color: '#999', fontSize: '12px' }}>Rating:</span>
+                    <span style={{ color: '#fbbf24', fontWeight: '600', fontSize: '14px' }}>
+                      {parseFloat(bid.DeliveryPerson?.average_rating || 0).toFixed(1)} ⭐
+                    </span>
+                    <span style={{ color: '#666', fontSize: '12px' }}>
+                      ({bid.DeliveryPerson?.total_ratings || 0} ratings)
+                    </span>
+                  </div>
+
+                  <div style={{
+                    marginTop: '16px',
+                    paddingTop: '16px',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+                  }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      color: '#ccc',
+                      fontSize: '13px',
+                      fontWeight: '500'
+                    }}>
+                      Justification for accepting this bid:
+                    </label>
+                    <textarea
+                      rows="2"
+                      placeholder="Explain why you are accepting this bid..."
+                      value={justification}
+                      onChange={(e) => setJustification(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit',
+                        resize: 'vertical',
+                        outline: 'none',
+                        marginBottom: '12px'
+                      }}
+                    />
+                    <button
+                      onClick={() => handleAcceptBid(bid.bid_id)}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      Accept Bid
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

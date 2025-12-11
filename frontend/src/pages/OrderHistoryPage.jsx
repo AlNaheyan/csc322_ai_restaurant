@@ -289,7 +289,10 @@ function OrderHistoryPage() {
                         Rate Delivery
                       </button>
                       <button
-                        onClick={() => setShowComplaintForm(true)}
+                        onClick={() => {
+                          setRatingOrder(order)
+                          setShowComplaintForm(true)
+                        }}
                         style={{
                           background: "#fbbf24",
                           color: "#1f2937",
@@ -349,7 +352,7 @@ function OrderHistoryPage() {
           </div>
         )}
 
-        {showComplaintForm && (
+        {showComplaintForm && ratingOrder && (
           <div
             style={{
               position: "fixed",
@@ -366,11 +369,16 @@ function OrderHistoryPage() {
           >
             <div style={{ maxWidth: "600px", width: "100%", padding: "20px" }}>
               <ComplaintForm
+                order={ratingOrder}
                 onSubmit={() => {
                   setShowComplaintForm(false)
+                  setRatingOrder(null)
                   alert("Complaint/Compliment submitted successfully!")
                 }}
-                onCancel={() => setShowComplaintForm(false)}
+                onCancel={() => {
+                  setShowComplaintForm(false)
+                  setRatingOrder(null)
+                }}
               />
             </div>
           </div>

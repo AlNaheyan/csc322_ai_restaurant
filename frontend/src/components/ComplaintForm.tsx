@@ -1,19 +1,32 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ComplaintFormProps {
+  order: any;
   onSubmit: () => void;
   onCancel: () => void;
 }
 
-export default function ComplaintForm({ onSubmit, onCancel }: ComplaintFormProps) {
+export default function ComplaintForm({ order, onSubmit, onCancel }: ComplaintFormProps) {
   const [complaintType, setComplaintType] = useState<'complaint' | 'compliment'>('complaint');
-  const [subjectType, setSubjectType] = useState<'chef' | 'delivery' | 'customer'>('chef');
+  const [subjectType, setSubjectType] = useState<'chef' | 'delivery'>('chef');
   const [subjectId, setSubjectId] = useState('');
+  const [subjectName, setSubjectName] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [evidenceUrl, setEvidenceUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (subjectType === 'chef' && order.OrderItems?.[0]) {
+      const chefId = order.OrderItems[0].chef_id;
+      setSubjectId(chefId?.toString() || '');
+      setSubjectName('Chef');
+    } else if (subjectType === 'delivery' && order.assigned_delivery_person) {
+      setSubjectId(order.assigned_delivery_person.toString());
+      setSubjectName('Delivery Person');
+    }
+  }, [subjectType, order]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,113 +71,264 @@ export default function ComplaintForm({ onSubmit, onCancel }: ComplaintFormProps
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">
-        File a {complaintType === 'complaint' ? 'Complaint' : 'Compliment'}
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: '12px',
+      padding: '32px',
+      backdropFilter: 'blur(4px)',
+      maxHeight: '90vh',
+      overflowY: 'auto'
+    }}>
+      <h3 style={{
+        color: '#fff',
+        fontSize: '20px',
+        fontWeight: '600',
+        marginTop: '0',
+        marginBottom: '24px'
+      }}>
+        File a Complaint
       </h3>
 
       <form onSubmit={handleSubmit}>
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#ef4444',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
             {error}
           </div>
         )}
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Type
           </label>
           <select
             value={complaintType}
             onChange={(e) => setComplaintType(e.target.value as 'complaint' | 'compliment')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
           >
-            <option value="complaint">Complaint</option>
-            <option value="compliment">Compliment</option>
+            <option value="complaint" style={{ background: '#1e293b' }}>Complaint</option>
+            <option value="compliment" style={{ background: '#1e293b' }}>Compliment</option>
           </select>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Subject Type
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
+            About
           </label>
           <select
             value={subjectType}
-            onChange={(e) => setSubjectType(e.target.value as 'chef' | 'delivery' | 'customer')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={(e) => setSubjectType(e.target.value as 'chef' | 'delivery')}
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
           >
-            <option value="chef">Chef</option>
-            <option value="delivery">Delivery Person</option>
-            <option value="customer">Customer</option>
+            <option value="chef" style={{ background: '#1e293b' }}>Chef / Food Quality</option>
+            <option value="delivery" style={{ background: '#1e293b' }}>Delivery Person / Service</option>
           </select>
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Subject User ID *
-          </label>
-          <input
-            type="number"
-            value={subjectId}
-            onChange={(e) => setSubjectId(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter user ID"
-            required
-          />
-        </div>
+        {subjectName && (
+          <div style={{
+            background: 'rgba(59, 130, 246, 0.1)',
+            border: '1px solid rgba(59, 130, 246, 0.3)',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px'
+          }}>
+            <p style={{ color: '#60a5fa', fontSize: '14px', margin: 0 }}>
+              Filing {complaintType} about: <strong>{subjectName}</strong> from Order #{order.order_id}
+            </p>
+          </div>
+        )}
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Category
           </label>
           <input
             type="text"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="e.g., quality, behavior, delivery_issue"
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box',
+              outline: 'none'
+            }}
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Description *
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Describe the issue or praise in detail..."
             required
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              outline: 'none'
+            }}
           />
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Evidence URL (Optional)
           </label>
           <input
             type="url"
             value={evidenceUrl}
             onChange={(e) => setEvidenceUrl(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="https://..."
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box',
+              outline: 'none'
+            }}
           />
         </div>
 
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
             type="submit"
             disabled={loading}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            style={{
+              flex: 1,
+              background: loading ? 'rgba(255, 255, 255, 0.1)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: loading ? '#666' : '#fff',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             {loading ? 'Submitting...' : 'Submit'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
+            style={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.06)',
+              color: '#999',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Cancel
           </button>

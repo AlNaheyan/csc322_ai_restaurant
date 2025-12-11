@@ -19,4 +19,15 @@ router.get('/analytics/complaints', managerController.getComplaintAnalytics);
 router.get('/analytics/menu', managerController.getMenuAnalytics);
 router.get('/analytics/financial', managerController.getFinancialSummary);
 
+router.post('/memos', managerController.createMemo);
+router.get('/memos', managerController.getAllMemos);
+router.get('/memos/:memoId', managerController.getMemoById);
+router.get('/memos/:referenceType/:referenceId', managerController.getMemosByReference);
+router.put('/memos/:memoId', managerController.updateMemo);
+router.delete('/memos/:memoId', managerController.deleteMemo);
+
+router.get('/discussions/reported-posts', managerController.getReportedPosts);
+router.put('/discussions/posts/:postId/unreport', managerController.unreportPost);
+router.delete('/discussions/posts/:postId', managerController.deleteReportedPost);
+
 module.exports = router;

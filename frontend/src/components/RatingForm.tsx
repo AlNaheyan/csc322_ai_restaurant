@@ -58,23 +58,51 @@ export default function RatingForm({ orderId, targetType, targetId, targetName, 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-4">
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.04)',
+      border: '1px solid rgba(255, 255, 255, 0.08)',
+      borderRadius: '12px',
+      padding: '32px',
+      backdropFilter: 'blur(4px)'
+    }}>
+      <h3 style={{
+        color: '#fff',
+        fontSize: '20px',
+        fontWeight: '600',
+        marginTop: '0',
+        marginBottom: '24px'
+      }}>
         Rate {targetType === 'food' ? 'Chef' : 'Delivery Person'}: {targetName}
       </h3>
 
       <form onSubmit={handleSubmit}>
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            color: '#ef4444',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '20px',
+            fontSize: '14px'
+          }}>
             {error}
           </div>
         )}
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '12px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Your Rating
           </label>
-          <div className="flex gap-2">
+          <div style={{ display: 'flex', gap: '12px' }}>
             {[1, 2, 3, 4, 5].map((star) => (
               <button
                 key={star}
@@ -82,45 +110,112 @@ export default function RatingForm({ orderId, targetType, targetId, targetName, 
                 onClick={() => setRating(star)}
                 onMouseEnter={() => setHoverRating(star)}
                 onMouseLeave={() => setHoverRating(0)}
-                className="focus:outline-none"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '4px',
+                  outline: 'none',
+                  transition: 'transform 0.2s ease'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
               >
                 <Star
-                  className={`w-8 h-8 ${
-                    star <= (hoverRating || rating)
-                      ? 'fill-yellow-400 text-yellow-400'
-                      : 'text-gray-300'
-                  }`}
+                  size={32}
+                  style={{
+                    fill: star <= (hoverRating || rating) ? '#fbbf24' : 'transparent',
+                    color: star <= (hoverRating || rating) ? '#fbbf24' : '#666'
+                  }}
                 />
               </button>
             ))}
           </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{
+            display: 'block',
+            marginBottom: '8px',
+            color: '#ccc',
+            fontSize: '13px',
+            fontWeight: '500',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px'
+          }}>
             Comment (Optional)
           </label>
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Share your experience..."
+            style={{
+              width: '100%',
+              padding: '10px 14px',
+              background: 'rgba(255, 255, 255, 0.06)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              borderRadius: '8px',
+              color: '#fff',
+              fontSize: '14px',
+              boxSizing: 'border-box',
+              fontFamily: 'inherit',
+              resize: 'vertical',
+              outline: 'none'
+            }}
           />
         </div>
 
-        <div className="flex gap-3">
+        <div style={{ display: 'flex', gap: '12px' }}>
           <button
             type="submit"
             disabled={loading || rating === 0}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            style={{
+              flex: 1,
+              background: rating === 0 ? 'rgba(255, 255, 255, 0.1)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: rating === 0 ? '#666' : '#fff',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: rating === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (rating > 0 && !loading) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             {loading ? 'Submitting...' : 'Submit Rating'}
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
+            style={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.06)',
+              color: '#999',
+              border: 'none',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
           >
             Cancel
           </button>

@@ -204,6 +204,38 @@ class DiscussionService {
     await post.destroy();
     return { message: 'Post deleted successfully' };
   }
+
+  async getReportedPosts() {
+    const reportedPosts = await DiscussionPost.findAll({
+      where: { is_reported: true },
+      include: [
+        {
+          model: User,
+          as: 'Author',
+          attributes: ['user_id', 'first_name', 'last_name', 'email']
+        },
+        {
+          model: DiscussionTopic,
+          attributes: ['topic_id', 'title', 'category']
+        }
+      ],
+      order: [['created_at', 'DESC']]
+    });
+
+    return reportedPosts;
+  }
+
+  async unreportPost(postId) {
+    const post = await DiscussionPost.findByPk(postId);
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    await post.update({ is_reported: false });
+
+    return { message: 'Post unreported successfully', post };
+  }
 }
 
 module.exports = new DiscussionService();
