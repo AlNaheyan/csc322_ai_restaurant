@@ -16,6 +16,8 @@ const KnowledgeBaseArticle = require('./KnowledgeBaseArticle');
 const ChatSession = require('./ChatSession');
 const ChatMessage = require('./ChatMessage');
 const ArticleComment = require('./ArticleComment');
+const DiscussionTopic = require('./DiscussionTopic');
+const DiscussionPost = require('./DiscussionPost');
 
 User.hasOne(Customer, { foreignKey: 'user_id' });
 Customer.belongsTo(User, { foreignKey: 'user_id' });
@@ -93,6 +95,16 @@ ArticleComment.belongsTo(KnowledgeBaseArticle, { foreignKey: 'article_id' });
 User.hasMany(ArticleComment, { foreignKey: 'user_id' });
 ArticleComment.belongsTo(User, { foreignKey: 'user_id', as: 'Author' });
 
+// Discussion associations
+User.hasMany(DiscussionTopic, { foreignKey: 'created_by' });
+DiscussionTopic.belongsTo(User, { foreignKey: 'created_by', as: 'Creator' });
+
+DiscussionTopic.hasMany(DiscussionPost, { foreignKey: 'topic_id' });
+DiscussionPost.belongsTo(DiscussionTopic, { foreignKey: 'topic_id' });
+
+User.hasMany(DiscussionPost, { foreignKey: 'author_id' });
+DiscussionPost.belongsTo(User, { foreignKey: 'author_id', as: 'Author' });
+
 module.exports = {
   User,
   Customer,
@@ -111,5 +123,7 @@ module.exports = {
   KnowledgeBaseArticle,
   ChatSession,
   ChatMessage,
-  ArticleComment
+  ArticleComment,
+  DiscussionTopic,
+  DiscussionPost
 };
