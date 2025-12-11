@@ -11,6 +11,7 @@ function DashboardPage() {
   const [depositAmount, setDepositAmount] = useState("")
   const [loading, setLoading] = useState(true)
   const [depositLoading, setDepositLoading] = useState(false)
+  const [cashbackLoading, setCashbackLoading] = useState(false)
   const [error, setError] = useState(null)
   const [showCloseAccount, setShowCloseAccount] = useState(false)
   const [closureReason, setClosureReason] = useState("")
@@ -46,6 +47,25 @@ function DashboardPage() {
     } catch (err) {
       setError(err.response?.data?.error || "Deposit failed")
       setDepositLoading(false)
+    }
+  }
+
+  const handleRedeemCashback = async () => {
+    if (!window.confirm("Redeem your cashback to your deposit balance?")) {
+      return
+    }
+
+    setCashbackLoading(true)
+    setError(null)
+
+    try {
+      const result = await customerService.redeemCashback()
+      await loadCustomerData()
+      alert(result.message || "Cashback redeemed successfully!")
+      setCashbackLoading(false)
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to redeem cashback")
+      setCashbackLoading(false)
     }
   }
 
@@ -127,6 +147,62 @@ function DashboardPage() {
           <p style={{ fontSize: "40px", fontWeight: "bold", color: "#4ade80", margin: "0 0 15px 0" }}>
             ${Number.parseFloat(customer?.deposit_balance || 0).toFixed(2)}
           </p>
+
+          {/* Cashback Balance */}
+          <div
+            style={{
+              marginTop: "20px",
+              padding: "20px",
+              background: "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)",
+              borderRadius: "12px",
+              border: "2px solid #fbbf24",
+            }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <h4 style={{ color: "#1f2937", marginTop: 0, marginBottom: "8px", fontSize: "16px", fontWeight: "600" }}>
+                  💰 Cashback Balance
+                </h4>
+                <p style={{ fontSize: "32px", fontWeight: "bold", color: "#1f2937", margin: 0 }}>
+                  ${Number.parseFloat(customer?.cashback_balance || 0).toFixed(2)}
+                </p>
+                <p style={{ color: "#78350f", fontSize: "13px", marginTop: "8px", marginBottom: 0 }}>
+                  Earn {customer?.is_vip ? "10%" : "5%"} cashback on completed orders
+                </p>
+              </div>
+              {Number.parseFloat(customer?.cashback_balance || 0) > 0 && (
+                <button
+                  onClick={handleRedeemCashback}
+                  disabled={cashbackLoading}
+                  style={{
+                    padding: "12px 24px",
+                    background: "#1f2937",
+                    color: "#fbbf24",
+                    border: "none",
+                    borderRadius: "8px",
+                    fontWeight: "bold",
+                    cursor: cashbackLoading ? "wait" : "pointer",
+                    fontSize: "14px",
+                    transition: "all 0.3s ease",
+                    opacity: cashbackLoading ? 0.6 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!cashbackLoading) {
+                      e.currentTarget.style.background = "#111827"
+                      e.currentTarget.style.transform = "translateY(-2px)"
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = "#1f2937"
+                    e.currentTarget.style.transform = "translateY(0)"
+                  }}
+                >
+                  {cashbackLoading ? "Redeeming..." : "Redeem to Balance"}
+                </button>
+              )}
+            </div>
+          </div>
+
           {customer?.is_vip && (
             <span
               style={{
