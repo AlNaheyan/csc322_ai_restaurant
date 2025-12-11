@@ -178,10 +178,10 @@ export default function ManagerComplaintReview() {
                       )}
                     </div>
                     <p style={{ fontSize: "14px", color: "#cbd5e1", marginBottom: "4px" }}>
-                      Subject: {complaint.Subject.username} ({complaint.subject_type})
+                      Subject: {complaint.Subject.first_name} {complaint.Subject.last_name} ({complaint.subject_type})
                     </p>
                     <p style={{ fontSize: "14px", color: "#cbd5e1", marginBottom: "4px" }}>
-                      Filed by: {complaint.Filer.username}
+                      Filed by: {complaint.Filer.first_name} {complaint.Filer.last_name}
                     </p>
                     {complaint.category && (
                       <p style={{ fontSize: "14px", color: "#cbd5e1" }}>Category: {complaint.category}</p>
