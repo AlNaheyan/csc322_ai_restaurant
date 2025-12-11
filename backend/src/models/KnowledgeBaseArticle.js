@@ -39,6 +39,10 @@ const KnowledgeBaseArticle = sequelize.define('KnowledgeBaseArticle', {
     type: DataTypes.BOOLEAN,
     defaultValue: true
   },
+  is_manager_approved: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   view_count: {
     type: DataTypes.INTEGER,
     defaultValue: 0

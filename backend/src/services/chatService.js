@@ -253,8 +253,15 @@ class ChatService {
       throw new Error('Article not found');
     }
 
-    await article.update({ is_flagged: false });
-    return article;
+    console.log(`Unflagging article ${articleId}. Before: flag_count=${article.flag_count}`);
+
+    article.is_flagged = false;
+    article.flag_count = 0;
+    await article.save();
+
+    console.log(`After save: flag_count=${article.flag_count}`);
+
+    return article.toJSON();
   }
 
   async createArticle(userId, articleData) {
@@ -291,6 +298,11 @@ class ChatService {
       order: [['created_at', 'DESC']]
     });
 
+    console.log(`getPendingArticles found ${articles.length} pending articles`);
+    articles.forEach(a => {
+      console.log(`  - Article ${a.article_id}: is_manager_approved=${a.is_manager_approved}, is_active=${a.is_active}`);
+    });
+
     return articles.map(a => a.toJSON());
   }
 
@@ -301,7 +313,18 @@ class ChatService {
       throw new Error('Article not found');
     }
 
-    await article.update({ is_manager_approved: true });
+    console.log(`Approving article ${articleId}. Before: is_manager_approved=${article.is_manager_approved}`);
+
+    // Update the article
+    article.is_manager_approved = true;
+    await article.save();
+
+    console.log(`After save: is_manager_approved=${article.is_manager_approved}`);
+
+    // Verify it was saved in the database
+    const verifyArticle = await KnowledgeBaseArticle.findByPk(articleId);
+    console.log(`Verified from DB: is_manager_approved=${verifyArticle.is_manager_approved}`);
+
     return article.toJSON();
   }
 
@@ -312,7 +335,13 @@ class ChatService {
       throw new Error('Article not found');
     }
 
-    await article.update({ is_active: false });
+    console.log(`Rejecting article ${articleId}. Before: is_active=${article.is_active}`);
+
+    article.is_active = false;
+    await article.save();
+
+    console.log(`After save: is_active=${article.is_active}`);
+
     return article.toJSON();
   }
 

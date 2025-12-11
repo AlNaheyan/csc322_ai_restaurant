@@ -34,6 +34,12 @@ const ManagerKBPage = () => {
     try {
       setLoading(true);
       const result = await chatService.getPendingArticles();
+      console.log('fetchPendingArticles result:', result.data);
+      if (result.data.length > 0) {
+        console.log('First article fields:', Object.keys(result.data[0]));
+        console.log('First article:', result.data[0]);
+      }
+      console.log('Articles:', result.data.map(a => `ID: ${a.article_id}, approved: ${a.is_manager_approved}`));
       setPendingArticles(result.data);
     } catch (err) {
       setError('Failed to load pending articles');
@@ -44,12 +50,14 @@ const ManagerKBPage = () => {
 
   const handleUnflag = async (articleId) => {
     try {
+      setError('');
       await chatService.unflagArticle(articleId);
       setSuccessMessage('Article unflagged successfully');
-      fetchFlaggedArticles();
+      await fetchFlaggedArticles();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       setError('Failed to unflag article');
+      setTimeout(() => setError(''), 3000);
     }
   };
 
@@ -75,11 +83,15 @@ const ManagerKBPage = () => {
   const handleApprove = async (articleId) => {
     try {
       setError('');
-      await chatService.approveArticle(articleId);
+      console.log('Approving article:', articleId);
+      const result = await chatService.approveArticle(articleId);
+      console.log('Approve result:', result);
       setSuccessMessage('Article approved successfully');
+      console.log('Refetching pending articles...');
       await fetchPendingArticles();
       setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
+      console.error('Approve error:', err);
       setError('Failed to approve article');
       setTimeout(() => setError(''), 3000);
     }
