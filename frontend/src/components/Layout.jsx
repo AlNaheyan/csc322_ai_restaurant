@@ -30,6 +30,10 @@ function Layout({ children }) {
           </h1>
           <nav style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 15px)', flexWrap: 'wrap' }}>
             <Link to="/menu" style={{ color: 'white', textDecoration: 'none' }}>Menu</Link>
+            <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
+            {isAuthenticated && (
+              <Link to="/kb/contribute" style={{ color: 'white', textDecoration: 'none' }}>Contribute KB</Link>
+            )}
             {isAuthenticated && (
               <>
                 {(user?.role === 'customer' || user?.role === 'vip') && (
@@ -46,7 +50,10 @@ function Layout({ children }) {
                   <Link to="/delivery/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Deliveries</Link>
                 )}
                 {user?.role === 'manager' && (
-                  <Link to="/manager/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Manager Panel</Link>
+                  <>
+                    <Link to="/manager/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Manager Panel</Link>
+                    <Link to="/manager/kb" style={{ color: 'white', textDecoration: 'none' }}>KB Review</Link>
+                  </>
                 )}
               </>
             )}

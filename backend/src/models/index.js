@@ -15,6 +15,7 @@ const Blacklist = require('./Blacklist');
 const KnowledgeBaseArticle = require('./KnowledgeBaseArticle');
 const ChatSession = require('./ChatSession');
 const ChatMessage = require('./ChatMessage');
+const ArticleComment = require('./ArticleComment');
 
 User.hasOne(Customer, { foreignKey: 'user_id' });
 Customer.belongsTo(User, { foreignKey: 'user_id' });
@@ -86,6 +87,12 @@ ChatMessage.belongsTo(KnowledgeBaseArticle, { foreignKey: 'kb_article_id' });
 User.hasMany(KnowledgeBaseArticle, { foreignKey: 'author_id' });
 KnowledgeBaseArticle.belongsTo(User, { foreignKey: 'author_id', as: 'Author' });
 
+KnowledgeBaseArticle.hasMany(ArticleComment, { foreignKey: 'article_id' });
+ArticleComment.belongsTo(KnowledgeBaseArticle, { foreignKey: 'article_id' });
+
+User.hasMany(ArticleComment, { foreignKey: 'user_id' });
+ArticleComment.belongsTo(User, { foreignKey: 'user_id', as: 'Author' });
+
 module.exports = {
   User,
   Customer,
@@ -103,5 +110,6 @@ module.exports = {
   Blacklist,
   KnowledgeBaseArticle,
   ChatSession,
-  ChatMessage
+  ChatMessage,
+  ArticleComment
 };
