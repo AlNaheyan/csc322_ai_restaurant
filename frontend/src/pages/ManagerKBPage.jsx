@@ -1,271 +1,474 @@
-import { useState, useEffect } from 'react';
-import { chatService } from '../services/chatService';
+"use client"
+
+import { useState, useEffect } from "react"
+import { chatService } from "../services/chatService"
 
 const ManagerKBPage = () => {
-  const [activeTab, setActiveTab] = useState('flagged');
-  const [flaggedArticles, setFlaggedArticles] = useState([]);
-  const [pendingArticles, setPendingArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+  const [activeTab, setActiveTab] = useState("flagged")
+  const [flaggedArticles, setFlaggedArticles] = useState([])
+  const [pendingArticles, setPendingArticles] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
 
   useEffect(() => {
-    if (activeTab === 'flagged') {
-      fetchFlaggedArticles();
+    if (activeTab === "flagged") {
+      fetchFlaggedArticles()
     } else {
-      fetchPendingArticles();
+      fetchPendingArticles()
     }
-  }, [activeTab]);
+  }, [activeTab])
 
   const fetchFlaggedArticles = async () => {
     try {
-      setLoading(true);
-      const result = await chatService.getFlaggedArticles();
-      setFlaggedArticles(result.data);
+      setLoading(true)
+      const result = await chatService.getFlaggedArticles()
+      setFlaggedArticles(result.data)
     } catch (err) {
-      setError('Failed to load flagged articles');
+      setError("Failed to load flagged articles")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const fetchPendingArticles = async () => {
     try {
-      setLoading(true);
-      const result = await chatService.getPendingArticles();
-      setPendingArticles(result.data);
+      setLoading(true)
+      const result = await chatService.getPendingArticles()
+      setPendingArticles(result.data)
     } catch (err) {
-      setError('Failed to load pending articles');
+      setError("Failed to load pending articles")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleUnflag = async (articleId) => {
     try {
-      await chatService.unflagArticle(articleId);
-      setSuccessMessage('Article unflagged successfully');
-      fetchFlaggedArticles();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      await chatService.unflagArticle(articleId)
+      setSuccessMessage("Article unflagged successfully")
+      fetchFlaggedArticles()
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
-      setError('Failed to unflag article');
+      setError("Failed to unflag article")
     }
-  };
+  }
 
   const handleDelete = async (articleId) => {
-    if (!window.confirm('Are you sure you want to delete this article? This action cannot be undone.')) {
-      return;
+    if (!window.confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+      return
     }
 
     try {
-      await chatService.deleteArticle(articleId);
-      setSuccessMessage('Article deleted successfully');
-      if (activeTab === 'flagged') {
-        fetchFlaggedArticles();
+      await chatService.deleteArticle(articleId)
+      setSuccessMessage("Article deleted successfully")
+      if (activeTab === "flagged") {
+        fetchFlaggedArticles()
       } else {
-        fetchPendingArticles();
+        fetchPendingArticles()
       }
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
-      setError('Failed to delete article');
+      setError("Failed to delete article")
     }
-  };
+  }
 
   const handleApprove = async (articleId) => {
     try {
-      setError('');
-      await chatService.approveArticle(articleId);
-      setSuccessMessage('Article approved successfully');
-      await fetchPendingArticles();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setError("")
+      await chatService.approveArticle(articleId)
+      setSuccessMessage("Article approved successfully")
+      await fetchPendingArticles()
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
-      setError('Failed to approve article');
-      setTimeout(() => setError(''), 3000);
+      setError("Failed to approve article")
+      setTimeout(() => setError(""), 3000)
     }
-  };
+  }
 
   const handleReject = async (articleId) => {
-    if (!window.confirm('Are you sure you want to reject this article? This will mark it as inactive.')) {
-      return;
+    if (!window.confirm("Are you sure you want to reject this article? This will mark it as inactive.")) {
+      return
     }
 
     try {
-      setError('');
-      await chatService.rejectArticle(articleId);
-      setSuccessMessage('Article rejected successfully');
-      await fetchPendingArticles();
-      setTimeout(() => setSuccessMessage(''), 3000);
+      setError("")
+      await chatService.rejectArticle(articleId)
+      setSuccessMessage("Article rejected successfully")
+      await fetchPendingArticles()
+      setTimeout(() => setSuccessMessage(""), 3000)
     } catch (err) {
-      setError('Failed to reject article');
-      setTimeout(() => setError(''), 3000);
+      setError("Failed to reject article")
+      setTimeout(() => setError(""), 3000)
     }
-  };
+  }
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Knowledge Base Management</h1>
-          <p className="text-gray-600 mt-2">
-            Review and manage knowledge base articles
-          </p>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0f172a 0%, #1a1f3a 100%)",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        padding: "32px 16px",
+      }}
+    >
+      <div style={{ marginBottom: "24px" }}>
+        <h1 style={{ fontSize: "28px", fontWeight: "bold", color: "#ffffff", marginBottom: "8px" }}>
+          Knowledge Base Management
+        </h1>
+        <p style={{ color: "#a1a5b4", marginTop: "8px" }}>Review and manage knowledge base articles</p>
+      </div>
+
+      <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
+        <button
+          onClick={() => setActiveTab("flagged")}
+          style={{
+            padding: "12px 20px",
+            borderRadius: "6px",
+            fontWeight: "600",
+            border: "none",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            background: activeTab === "flagged" ? "#ef4444" : "#475569",
+            color: "#ffffff",
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== "flagged") e.currentTarget.style.background = "#64748b"
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== "flagged") e.currentTarget.style.background = "#475569"
+          }}
+        >
+          Flagged Articles ({flaggedArticles.length})
+        </button>
+        <button
+          onClick={() => setActiveTab("pending")}
+          style={{
+            padding: "12px 20px",
+            borderRadius: "6px",
+            fontWeight: "600",
+            border: "none",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+            background: activeTab === "pending" ? "#4ade80" : "#475569",
+            color: activeTab === "pending" ? "#ffffff" : "#ffffff",
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== "pending") e.currentTarget.style.background = "#64748b"
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== "pending") e.currentTarget.style.background = "#475569"
+          }}
+        >
+          Pending Approval ({pendingArticles.length})
+        </button>
+      </div>
+
+      {error && (
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "16px",
+            background: "#7f1d1d",
+            color: "#fca5a5",
+            borderRadius: "6px",
+          }}
+        >
+          {error}
         </div>
+      )}
 
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('flagged')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === 'flagged'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Flagged Articles ({flaggedArticles.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === 'pending'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Pending Approval ({pendingArticles.length})
-          </button>
+      {successMessage && (
+        <div
+          style={{
+            marginBottom: "16px",
+            padding: "16px",
+            background: "#166534",
+            color: "#86efac",
+            borderRadius: "6px",
+          }}
+        >
+          {successMessage}
         </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
-            {error}
+      {loading ? (
+        <div style={{ display: "flex", justifyContent: "center", padding: "48px" }}>
+          <div
+            style={{
+              animation: "spin 1s linear infinite",
+              width: "48px",
+              height: "48px",
+              border: "4px solid #4ade80",
+              borderTop: "4px solid transparent",
+              borderRadius: "50%",
+            }}
+          ></div>
+        </div>
+      ) : activeTab === "flagged" ? (
+        flaggedArticles.length === 0 ? (
+          <div
+            style={{
+              textAlign: "center",
+              padding: "48px",
+              background: "#1e293b",
+              borderRadius: "8px",
+              color: "#a1a5b4",
+            }}
+          >
+            No flagged articles to review
           </div>
-        )}
-
-        {successMessage && (
-          <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg">
-            {successMessage}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        ) : activeTab === 'flagged' ? (
-          flaggedArticles.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600">No flagged articles to review</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {flaggedArticles.map(article => (
-              <div key={article.article_id} className="bg-white border rounded-lg p-6 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900">{article.title}</h3>
-                    <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
+            {flaggedArticles.map((article) => (
+              <div
+                key={article.article_id}
+                style={{
+                  background: "#1e293b",
+                  borderRadius: "8px",
+                  padding: "24px",
+                  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
+                  border: "1px solid #334155",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "flex-start",
+                    marginBottom: "16px",
+                  }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#ffffff", marginBottom: "8px" }}>
+                      {article.title}
+                    </h3>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginTop: "8px",
+                        padding: "4px 8px",
+                        background: "#4ade80",
+                        color: "#ffffff",
+                        fontSize: "12px",
+                        borderRadius: "4px",
+                      }}
+                    >
                       {article.category}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {article.flag_count} flag{article.flag_count !== 1 ? 's' : ''}
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
+                    <span
+                      style={{
+                        background: "#ef4444",
+                        color: "#ffffff",
+                        padding: "6px 12px",
+                        borderRadius: "20px",
+                        fontSize: "13px",
+                        fontWeight: "500",
+                      }}
+                    >
+                      {article.flag_count} flag{article.flag_count !== 1 ? "s" : ""}
                     </span>
                   </div>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{article.content}</p>
+                <div style={{ marginBottom: "16px" }}>
+                  <p style={{ color: "#cbd5e1", whiteSpace: "pre-wrap" }}>{article.content}</p>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="text-sm text-gray-500">
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingTop: "16px",
+                    borderTop: "1px solid #334155",
+                  }}
+                >
+                  <div style={{ fontSize: "13px", color: "#64748b" }}>
                     <span>Views: {article.view_count}</span>
-                    <span className="mx-2">•</span>
+                    <span style={{ margin: "0 12px" }}>•</span>
                     <span>Helpful: {article.helpful_count}</span>
                     {article.Author && (
                       <>
-                        <span className="mx-2">•</span>
-                        <span>Author: {article.Author.first_name} {article.Author.last_name}</span>
+                        <span style={{ margin: "0 12px" }}>•</span>
+                        <span>
+                          Author: {article.Author.first_name} {article.Author.last_name}
+                        </span>
                       </>
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div style={{ display: "flex", gap: "12px" }}>
                     <button
                       onClick={() => handleUnflag(article.article_id)}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      style={{
+                        padding: "8px 16px",
+                        background: "#4ade80",
+                        color: "#ffffff",
+                        borderRadius: "6px",
+                        border: "none",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#22c55e")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#4ade80")}
                     >
-                      Unflag (Keep Article)
+                      Unflag
                     </button>
                     <button
                       onClick={() => handleDelete(article.article_id)}
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      style={{
+                        padding: "8px 16px",
+                        background: "#ef4444",
+                        color: "#ffffff",
+                        borderRadius: "6px",
+                        border: "none",
+                        cursor: "pointer",
+                        fontWeight: "600",
+                        transition: "all 0.3s ease",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#dc2626")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#ef4444")}
                     >
-                      Delete Article
+                      Delete
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          )
-        ) : (
-          pendingArticles.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600">No pending articles to review</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {pendingArticles.map(article => (
-                <div key={article.article_id} className="bg-white border rounded-lg p-6 shadow-sm">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900">{article.title}</h3>
-                      <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                        {article.category}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                        Pending Approval
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-gray-700 whitespace-pre-wrap">{article.content}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="text-sm text-gray-500">
-                      {article.Author && (
-                        <span>Author: {article.Author.first_name} {article.Author.last_name} ({article.Author.email})</span>
-                      )}
-                      <span className="mx-2">•</span>
-                      <span>Submitted: {new Date(article.created_at).toLocaleDateString()}</span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleApprove(article.article_id)}
-                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(article.article_id)}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  </div>
+        )
+      ) : pendingArticles.length === 0 ? (
+        <div
+          style={{ textAlign: "center", padding: "48px", background: "#1e293b", borderRadius: "8px", color: "#a1a5b4" }}
+        >
+          No pending articles to review
+        </div>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "16px" }}>
+          {pendingArticles.map((article) => (
+            <div
+              key={article.article_id}
+              style={{
+                background: "#1e293b",
+                borderRadius: "8px",
+                padding: "24px",
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.3)",
+                border: "1px solid #334155",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  marginBottom: "16px",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ fontSize: "18px", fontWeight: "600", color: "#ffffff", marginBottom: "8px" }}>
+                    {article.title}
+                  </h3>
+                  <span
+                    style={{
+                      display: "inline-block",
+                      marginTop: "8px",
+                      padding: "4px 8px",
+                      background: "#4ade80",
+                      color: "#ffffff",
+                      fontSize: "12px",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    {article.category}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )
-        )}
-      </div>
-  );
-};
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "16px" }}>
+                  <span
+                    style={{
+                      background: "#f59e0b",
+                      color: "#ffffff",
+                      padding: "6px 12px",
+                      borderRadius: "20px",
+                      fontSize: "13px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    Pending Approval
+                  </span>
+                </div>
+              </div>
 
-export default ManagerKBPage;
+              <div style={{ marginBottom: "16px" }}>
+                <p style={{ color: "#cbd5e1", whiteSpace: "pre-wrap" }}>{article.content}</p>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: "16px",
+                  borderTop: "1px solid #334155",
+                }}
+              >
+                <div style={{ fontSize: "13px", color: "#64748b" }}>
+                  {article.Author && (
+                    <span>
+                      Author: {article.Author.first_name} {article.Author.last_name} ({article.Author.email})
+                    </span>
+                  )}
+                  <span style={{ margin: "0 12px" }}>•</span>
+                  <span>Submitted: {new Date(article.created_at).toLocaleDateString()}</span>
+                </div>
+
+                <div style={{ display: "flex", gap: "12px" }}>
+                  <button
+                    onClick={() => handleApprove(article.article_id)}
+                    style={{
+                      padding: "8px 16px",
+                      background: "#4ade80",
+                      color: "#ffffff",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#22c55e")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#4ade80")}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    onClick={() => handleReject(article.article_id)}
+                    style={{
+                      padding: "8px 16px",
+                      background: "#ef4444",
+                      color: "#ffffff",
+                      borderRadius: "6px",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "600",
+                      transition: "all 0.3s ease",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "#dc2626")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "#ef4444")}
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default ManagerKBPage
