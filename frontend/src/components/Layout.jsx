@@ -1,81 +1,153 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
 import { logout } from '../store/authSlice';
+import { useState } from 'react';
 
 function Layout({ children }) {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [hoveredLink, setHoveredLink] = useState(null);
 
   const handleLogout = () => {
     dispatch(logout());
     navigate('/login');
   };
 
+  const NavLink = ({ to, children, index }) => (
+    <Link
+      to={to}
+      onMouseEnter={() => setHoveredLink(index)}
+      onMouseLeave={() => setHoveredLink(null)}
+      style={{
+        color: hoveredLink === index ? '#4ade80' : '#cbd5e1',
+        textDecoration: 'none',
+        fontSize: '14px',
+        fontWeight: '500',
+        transition: 'color 0.2s ease',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {children}
+    </Link>
+  );
+
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0f172a' }}>
       <header style={{
-        background: '#333',
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        borderBottom: '1px solid #334155',
         color: 'white',
-        padding: 'clamp(10px, 2vw, 15px) clamp(15px, 3vw, 30px)',
+        padding: '16px 24px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         flexWrap: 'wrap',
-        gap: '10px'
+        gap: '15px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3)'
       }}>
-        <div style={{ display: 'flex', gap: 'clamp(10px, 2vw, 20px)', alignItems: 'center', flexWrap: 'wrap' }}>
-          <h1 style={{ margin: 0, fontSize: 'clamp(18px, 3vw, 24px)', cursor: 'pointer', whiteSpace: 'nowrap' }} onClick={() => navigate('/')}>
-            Restaurant
+        <div style={{ display: 'flex', gap: '30px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: '22px',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              color: '#ffffff',
+              fontWeight: 'bold'
+            }}
+            onClick={() => navigate('/')}
+          >
+            🦫 Beaver Eats
           </h1>
-          <nav style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 15px)', flexWrap: 'wrap' }}>
-            <Link to="/menu" style={{ color: 'white', textDecoration: 'none' }}>Menu</Link>
-            <Link to="/chat" style={{ color: 'white', textDecoration: 'none' }}>Chat</Link>
+          <nav style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <NavLink to="/menu" index="menu">Menu</NavLink>
+            <NavLink to="/chat" index="chat">AI Chat</NavLink>
+
             {isAuthenticated && user?.role !== 'visitor' && (
               <>
-                <Link to="/discussions" style={{ color: 'white', textDecoration: 'none' }}>Discussions</Link>
-                <Link to="/kb/contribute" style={{ color: 'white', textDecoration: 'none' }}>Contribute KB</Link>
+                <NavLink to="/discussions" index="discussions">Discussions</NavLink>
+                <NavLink to="/kb/contribute" index="kb">Knowledge Base</NavLink>
               </>
             )}
-            {isAuthenticated && (
+
+            {isAuthenticated && (user?.role === 'customer' || user?.role === 'vip') && (
               <>
-                {(user?.role === 'customer' || user?.role === 'vip') && (
-                  <>
-                    <Link to="/cart" style={{ color: 'white', textDecoration: 'none' }}>Cart</Link>
-                    <Link to="/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Dashboard</Link>
-                    <Link to="/orders" style={{ color: 'white', textDecoration: 'none' }}>Orders</Link>
-                  </>
-                )}
-                {user?.role === 'chef' && (
-                  <Link to="/chef/dashboard" style={{ color: 'white', textDecoration: 'none' }}>My Kitchen</Link>
-                )}
-                {user?.role === 'delivery' && (
-                  <Link to="/delivery/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Deliveries</Link>
-                )}
-                {user?.role === 'manager' && (
-                  <>
-                    <Link to="/manager/dashboard" style={{ color: 'white', textDecoration: 'none' }}>Manager Panel</Link>
-                    <Link to="/manager/kb" style={{ color: 'white', textDecoration: 'none' }}>KB Review</Link>
-                  </>
-                )}
+                <NavLink to="/cart" index="cart">Cart</NavLink>
+                <NavLink to="/dashboard" index="dashboard">Dashboard</NavLink>
+                <NavLink to="/orders" index="orders">Orders</NavLink>
+              </>
+            )}
+
+            {user?.role === 'chef' && (
+              <NavLink to="/chef/dashboard" index="chef">My Kitchen</NavLink>
+            )}
+
+            {user?.role === 'delivery' && (
+              <NavLink to="/delivery/dashboard" index="delivery">Deliveries</NavLink>
+            )}
+
+            {user?.role === 'manager' && (
+              <>
+                <NavLink to="/manager/dashboard" index="mgr-dash">Dashboard</NavLink>
+                <NavLink to="/manager/registrations" index="mgr-reg">Registrations</NavLink>
+                <NavLink to="/manager/complaints" index="mgr-comp">Complaints</NavLink>
+                <NavLink to="/manager/performance" index="mgr-perf">Performance</NavLink>
+                <NavLink to="/manager/analytics" index="mgr-analytics">Analytics</NavLink>
+                <NavLink to="/manager/kb" index="mgr-kb">KB Review</NavLink>
+                <NavLink to="/manager/discussions/moderation" index="mgr-disc">Moderation</NavLink>
               </>
             )}
           </nav>
         </div>
-        <div style={{ display: 'flex', gap: 'clamp(8px, 1.5vw, 15px)', alignItems: 'center', flexWrap: 'wrap' }}>
+
+        <div style={{ display: 'flex', gap: '15px', alignItems: 'center', flexWrap: 'wrap' }}>
           {isAuthenticated ? (
             <>
-              <span style={{ fontSize: 'clamp(12px, 2vw, 16px)' }}>{user?.first_name} ({user?.role})</span>
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: '2px'
+              }}>
+                <span style={{
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#e2e8f0'
+                }}>
+                  {user?.first_name} {user?.last_name}
+                </span>
+                <span style={{
+                  fontSize: '12px',
+                  color: user?.role === 'vip' ? '#fbbf24' : '#94a3b8',
+                  fontWeight: '500',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  {user?.role === 'vip' ? '⭐ VIP' : user?.role}
+                </span>
+              </div>
               <button
                 onClick={handleLogout}
+                onMouseEnter={(e) => {
+                  e.target.style.background = '#b91c1c';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = '#dc2626';
+                  e.target.style.transform = 'translateY(0)';
+                }}
                 style={{
-                  background: '#dc3545',
+                  background: '#dc2626',
                   color: 'white',
                   border: 'none',
-                  padding: 'clamp(6px, 1vw, 8px) clamp(12px, 2vw, 16px)',
-                  borderRadius: '4px',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
                   cursor: 'pointer',
-                  fontSize: 'clamp(12px, 1.5vw, 16px)'
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                 }}
               >
                 Logout
@@ -83,23 +155,51 @@ function Layout({ children }) {
             </>
           ) : (
             <>
-              <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>Login</Link>
-              <Link to="/register" style={{ color: 'white', textDecoration: 'none' }}>Register</Link>
+              <Link
+                to="/login"
+                style={{
+                  color: '#cbd5e1',
+                  textDecoration: 'none',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                Login
+              </Link>
+              <Link
+                to="/register"
+                style={{
+                  background: '#4ade80',
+                  color: '#0f172a',
+                  textDecoration: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                Register
+              </Link>
             </>
           )}
         </div>
       </header>
+
       <main style={{ flex: 1, width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
         {children}
       </main>
+
       <footer style={{
-        background: '#f5f5f5',
-        padding: 'clamp(15px, 2.5vw, 20px)',
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        borderTop: '1px solid #334155',
+        padding: '20px',
         textAlign: 'center',
-        borderTop: '1px solid #ddd',
-        color: '#333'
+        color: '#94a3b8'
       }}>
-        <p style={{ margin: 0, fontSize: 'clamp(12px, 1.5vw, 16px)' }}>Restaurant Order & Delivery System</p>
+        <p style={{ margin: 0, fontSize: '14px' }}>
+          © 2025 Beaver Eats - AI-Powered Order & Delivery System
+        </p>
       </footer>
     </div>
   );
