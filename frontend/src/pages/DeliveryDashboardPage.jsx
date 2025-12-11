@@ -194,16 +194,16 @@ function DeliveryDashboardPage() {
   if (loading) return <div style={{ padding: '20px', color: '#fff' }}>Loading...</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1 style={{ color: '#fff' }}>Delivery Dashboard</h1>
-      <p style={{ color: '#fff' }}>Welcome, {user?.first_name}!</p>
+    <div style={{ padding: 'clamp(15px, 3vw, 40px) clamp(15px, 3vw, 30px)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <h1 style={{ color: '#fff', fontSize: 'clamp(24px, 4vw, 32px)' }}>Delivery Dashboard</h1>
+      <p style={{ color: '#fff', fontSize: 'clamp(14px, 2vw, 18px)' }}>Welcome, {user?.first_name}!</p>
 
       {stats && (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '20px',
-          marginBottom: '30px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+          gap: 'clamp(12px, 2vw, 20px)',
+          marginBottom: 'clamp(20px, 3vw, 30px)'
         }}>
           <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px' }}>
             <h3 style={{ margin: '0 0 10px 0', color: '#333' }}>Total Deliveries</h3>
@@ -616,7 +616,7 @@ function DeliveryDashboardPage() {
                           padding: '2px 8px',
                           borderRadius: '4px',
                           background: bid.bid_status === 'accepted' ? '#28a745' :
-                                     bid.bid_status === 'pending' ? '#f39c12' : '#dc3545',
+                            bid.bid_status === 'pending' ? '#f39c12' : '#dc3545',
                           color: 'white'
                         }}>{bid.bid_status}</span>
                       </p>

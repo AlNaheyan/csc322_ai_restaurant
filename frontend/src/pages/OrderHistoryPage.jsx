@@ -60,8 +60,8 @@ function OrderHistoryPage() {
   if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h2 style={{ color: '#333' }}>Order History</h2>
+    <div style={{ padding: 'clamp(15px, 3vw, 40px) clamp(15px, 3vw, 30px)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <h2 style={{ color: '#333', fontSize: 'clamp(24px, 4vw, 32px)' }}>Order History</h2>
 
       {orders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>

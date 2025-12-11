@@ -210,8 +210,8 @@ function ChefDashboardPage() {
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <h2 style={{ color: '#333' }}>Chef Dashboard</h2>
+    <div style={{ padding: 'clamp(15px, 3vw, 40px) clamp(15px, 3vw, 30px)', maxWidth: '1400px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <h2 style={{ color: '#333', fontSize: 'clamp(24px, 4vw, 32px)' }}>Chef Dashboard</h2>
 
       {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
 
@@ -278,7 +278,7 @@ function ChefDashboardPage() {
       </div>
 
       {stats && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 'clamp(12px, 2vw, 20px)', marginBottom: 'clamp(20px, 3vw, 30px)' }}>
           <div style={{ background: '#f8f9fa', padding: '20px', borderRadius: '8px', textAlign: 'center' }}>
             <h3 style={{ color: '#666', fontSize: '14px', margin: '0 0 10px 0' }}>Total Menu Items</h3>
             <p style={{ fontSize: '32px', fontWeight: 'bold', color: '#333', margin: 0 }}>{stats.menu_items_count}</p>
@@ -413,200 +413,200 @@ function ChefDashboardPage() {
             </button>
           </div>
 
-      {showAddForm && (
-        <div style={{
-          background: 'white',
-          border: '1px solid #ddd',
-          borderRadius: '8px',
-          padding: '20px',
-          marginBottom: '30px'
-        }}>
-          <h3 style={{ color: '#333', marginTop: 0 }}>
-            {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
-          </h3>
-          <form onSubmit={handleSubmit}>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Name:</label>
-              <input
-                type="text"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Description:</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                rows="3"
-                style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Price:</label>
-              <input
-                type="number"
-                name="price"
-                value={formData.price}
-                onChange={handleInputChange}
-                step="0.01"
-                min="0"
-                required
-                style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Image URL:</label>
-              <input
-                type="text"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleInputChange}
-                style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
-              />
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
-                <input
-                  type="checkbox"
-                  name="is_vip_only"
-                  checked={formData.is_vip_only}
-                  onChange={handleInputChange}
-                  style={{ marginRight: '8px' }}
-                />
-                VIP Only
-              </label>
-            </div>
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
-                <input
-                  type="checkbox"
-                  name="is_available"
-                  checked={formData.is_available}
-                  onChange={handleInputChange}
-                  style={{ marginRight: '8px' }}
-                />
-                Available
-              </label>
-            </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                type="submit"
-                style={{
-                  background: '#007bff',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                {editingItem ? 'Update' : 'Create'}
-              </button>
-              <button
-                type="button"
-                onClick={handleCancel}
-                style={{
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  padding: '10px 20px',
-                  borderRadius: '4px',
-                  cursor: 'pointer'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      <h3 style={{ color: '#fff' }}>My Menu Items</h3>
-      {menuItems.length === 0 ? (
-        <p style={{ color: '#666' }}>No menu items yet. Create your first one!</p>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-          {menuItems.map(item => (
-            <div key={item.item_id} style={{
+          {showAddForm && (
+            <div style={{
               background: 'white',
               border: '1px solid #ddd',
               borderRadius: '8px',
-              padding: '15px'
+              padding: '20px',
+              marginBottom: '30px'
             }}>
-              {item.image_url && (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }}
-                />
-              )}
-              <h4 style={{ color: '#333', margin: '0 0 10px 0' }}>{item.name}</h4>
-              <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>{item.description}</p>
-              <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#28a745', margin: '10px 0' }}>
-                ${parseFloat(item.price).toFixed(2)}
-              </p>
-              <div style={{ marginBottom: '10px' }}>
-                {item.is_vip_only && (
-                  <span style={{ background: 'gold', color: '#333', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', marginRight: '5px' }}>
+              <h3 style={{ color: '#333', marginTop: 0 }}>
+                {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
+              </h3>
+              <form onSubmit={handleSubmit}>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Name:</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Description:</label>
+                  <textarea
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows="3"
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Price:</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    min="0"
+                    required
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'block', marginBottom: '5px', color: '#333' }}>Image URL:</label>
+                  <input
+                    type="text"
+                    name="image_url"
+                    value={formData.image_url}
+                    onChange={handleInputChange}
+                    style={{ width: '100%', padding: '8px', border: '1px solid #ddd', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
+                    <input
+                      type="checkbox"
+                      name="is_vip_only"
+                      checked={formData.is_vip_only}
+                      onChange={handleInputChange}
+                      style={{ marginRight: '8px' }}
+                    />
                     VIP Only
-                  </span>
-                )}
-                <span style={{
-                  background: item.is_available ? '#28a745' : '#dc3545',
-                  color: 'white',
-                  padding: '3px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px'
-                }}>
-                  {item.is_available ? 'Available' : 'Unavailable'}
-                </span>
-              </div>
-              <p style={{ color: '#666', fontSize: '12px', marginBottom: '10px' }}>
-                Rating: {parseFloat(item.average_rating).toFixed(1)} ★ ({item.total_ratings} reviews)
-              </p>
-              <p style={{ color: '#666', fontSize: '12px', marginBottom: '15px' }}>
-                Orders: {item.order_count}
-              </p>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => handleEdit(item)}
-                  style={{
-                    flex: 1,
-                    background: '#007bff',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDelete(item.item_id)}
-                  style={{
-                    flex: 1,
-                    background: '#dc3545',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Delete
-                </button>
-              </div>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '15px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', color: '#333' }}>
+                    <input
+                      type="checkbox"
+                      name="is_available"
+                      checked={formData.is_available}
+                      onChange={handleInputChange}
+                      style={{ marginRight: '8px' }}
+                    />
+                    Available
+                  </label>
+                </div>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button
+                    type="submit"
+                    style={{
+                      background: '#007bff',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {editingItem ? 'Update' : 'Create'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCancel}
+                    style={{
+                      background: '#6c757d',
+                      color: 'white',
+                      border: 'none',
+                      padding: '10px 20px',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
-          ))}
+          )}
+
+          <h3 style={{ color: '#fff' }}>My Menu Items</h3>
+          {menuItems.length === 0 ? (
+            <p style={{ color: '#666' }}>No menu items yet. Create your first one!</p>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              {menuItems.map(item => (
+                <div key={item.item_id} style={{
+                  background: 'white',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  padding: '15px'
+                }}>
+                  {item.image_url && (
+                    <img
+                      src={item.image_url}
+                      alt={item.name}
+                      style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '4px', marginBottom: '10px' }}
+                    />
+                  )}
+                  <h4 style={{ color: '#333', margin: '0 0 10px 0' }}>{item.name}</h4>
+                  <p style={{ color: '#666', fontSize: '14px', marginBottom: '10px' }}>{item.description}</p>
+                  <p style={{ fontSize: '18px', fontWeight: 'bold', color: '#28a745', margin: '10px 0' }}>
+                    ${parseFloat(item.price).toFixed(2)}
+                  </p>
+                  <div style={{ marginBottom: '10px' }}>
+                    {item.is_vip_only && (
+                      <span style={{ background: 'gold', color: '#333', padding: '3px 8px', borderRadius: '4px', fontSize: '12px', marginRight: '5px' }}>
+                        VIP Only
+                      </span>
+                    )}
+                    <span style={{
+                      background: item.is_available ? '#28a745' : '#dc3545',
+                      color: 'white',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px'
+                    }}>
+                      {item.is_available ? 'Available' : 'Unavailable'}
+                    </span>
+                  </div>
+                  <p style={{ color: '#666', fontSize: '12px', marginBottom: '10px' }}>
+                    Rating: {parseFloat(item.average_rating).toFixed(1)} ★ ({item.total_ratings} reviews)
+                  </p>
+                  <p style={{ color: '#666', fontSize: '12px', marginBottom: '15px' }}>
+                    Orders: {item.order_count}
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => handleEdit(item)}
+                      style={{
+                        flex: 1,
+                        background: '#007bff',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.item_id)}
+                      style={{
+                        flex: 1,
+                        background: '#dc3545',
+                        color: 'white',
+                        border: 'none',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-        )}
-      </div>
       )}
 
       {activeTab === 'ratings' && (

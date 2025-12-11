@@ -50,8 +50,8 @@ function CheckoutPage() {
   }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Checkout</h2>
+    <div style={{ padding: 'clamp(15px, 3vw, 40px) clamp(15px, 3vw, 30px)', maxWidth: '800px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <h2 style={{ fontSize: 'clamp(24px, 4vw, 32px)' }}>Checkout</h2>
       <form onSubmit={handleSubmit}>
         <div style={{ marginBottom: '15px' }}>
           <label>Delivery Address:</label>

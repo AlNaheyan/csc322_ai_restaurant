@@ -70,8 +70,8 @@ function DashboardPage() {
   if (loading) return <div style={{ padding: '20px' }}>Loading...</div>;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      <h2>Customer Dashboard</h2>
+    <div style={{ padding: 'clamp(15px, 3vw, 40px) clamp(15px, 3vw, 30px)', maxWidth: '1000px', width: '100%', margin: '0 auto', boxSizing: 'border-box' }}>
+      <h2 style={{ fontSize: 'clamp(24px, 4vw, 32px)' }}>Customer Dashboard</h2>
 
       {error && <div style={{ color: 'red', marginBottom: '15px' }}>{error}</div>}
 
