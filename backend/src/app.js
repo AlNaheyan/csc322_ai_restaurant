@@ -15,6 +15,7 @@ const performanceRoutes = require('./routes/performance');
 const vipRoutes = require('./routes/vip');
 const chatRoutes = require('./routes/chat');
 const discussionRoutes = require('./routes/discussions');
+const managerRoutes = require('./routes/manager');
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use('/api/performance', performanceRoutes);
 app.use('/api/vip', vipRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/discussions', discussionRoutes);
+app.use('/api/manager', managerRoutes);
 
 app.use(errorHandler);
 

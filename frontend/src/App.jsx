@@ -15,6 +15,7 @@ import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
 import ManagerComplaintReview from './pages/ManagerComplaintReview';
 import ManagerPerformanceReviewPage from './pages/ManagerPerformanceReviewPage';
+import ManagerRegistrationApprovalPage from './pages/ManagerRegistrationApprovalPage';
 import ChatPage from './pages/ChatPage';
 import ManagerKBPage from './pages/ManagerKBPage';
 import ContributeKBPage from './pages/ContributeKBPage';
@@ -101,6 +102,11 @@ function App() {
           <Route path="/manager/performance" element={
             <ProtectedRoute allowedRoles={['manager']}>
               <ManagerPerformanceReviewPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/manager/registrations" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerRegistrationApprovalPage />
             </ProtectedRoute>
           } />
           <Route path="/chat" element={<ChatPage />} />
