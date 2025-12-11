@@ -16,7 +16,7 @@ router.put('/:topicId/lock', authenticate, requireRole('manager'), discussionCon
 
 router.put('/:topicId/unlock', authenticate, requireRole('manager'), discussionController.unlockTopic);
 
-router.post('/posts/:postId/report', authenticate, requireRole('customer', 'vip', 'chef', 'delivery'), discussionController.reportPost);
+router.post('/posts/:postId/report', authenticate, requireRole('customer', 'vip', 'chef', 'delivery', 'manager'), discussionController.reportPost);
 
 router.delete('/:topicId', authenticate, discussionController.deleteTopic);
 

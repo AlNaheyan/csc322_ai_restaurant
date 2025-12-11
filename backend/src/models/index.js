@@ -31,6 +31,9 @@ MenuItem.belongsTo(Employee, { foreignKey: 'chef_id', as: 'Chef' });
 Customer.hasMany(Order, { foreignKey: 'customer_id' });
 Order.belongsTo(Customer, { foreignKey: 'customer_id' });
 
+Employee.hasMany(Order, { foreignKey: 'assigned_delivery_person' });
+Order.belongsTo(Employee, { foreignKey: 'assigned_delivery_person', as: 'DeliveryPerson' });
+
 Order.hasMany(OrderItem, { foreignKey: 'order_id' });
 OrderItem.belongsTo(Order, { foreignKey: 'order_id' });
 

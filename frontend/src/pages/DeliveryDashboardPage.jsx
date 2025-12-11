@@ -5,6 +5,7 @@ import { useSelector } from "react-redux"
 import api from "../services/api"
 import socketService from "../services/socketService"
 import RatingDisplay from "../components/RatingDisplay"
+import UniversalComplaintForm from "../components/UniversalComplaintForm"
 
 function DeliveryDashboardPage() {
   const { user } = useSelector((state) => state.auth)
@@ -21,6 +22,8 @@ function DeliveryDashboardPage() {
   const [complaintsTab, setComplaintsTab] = useState("received")
   const [bidForm, setBidForm] = useState({})
   const [showBidForm, setShowBidForm] = useState(null)
+  const [showComplaintForm, setShowComplaintForm] = useState(false)
+  const [complaintSubject, setComplaintSubject] = useState(null)
 
   useEffect(() => {
     loadData()
@@ -476,7 +479,7 @@ function DeliveryDashboardPage() {
                         <strong>Instructions:</strong> {order.special_instructions}
                       </p>
                     )}
-                    <div style={{ marginTop: "15px", display: "flex", gap: "10px" }}>
+                    <div style={{ marginTop: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
                       {order.status === "ready" && (
                         <button
                           onClick={() => handleUpdateStatus(order.order_id, "out_for_delivery")}
@@ -507,6 +510,49 @@ function DeliveryDashboardPage() {
                           }}
                         >
                           Mark Delivered
+                        </button>
+                      )}
+                      {order.status === "delivered" && (
+                        <button
+                          onClick={() => {
+                            const subjects = []
+
+                            // Add customer if available
+                            if (order.Customer?.User) {
+                              subjects.push({
+                                id: order.Customer.user_id,
+                                name: `${order.Customer.User.first_name} ${order.Customer.User.last_name}`,
+                                type: 'customer'
+                              })
+                            }
+
+                            // Add unique chefs from order items
+                            const addedChefs = new Set()
+                            order.OrderItems?.forEach(item => {
+                              if (item.MenuItem?.Chef?.User && !addedChefs.has(item.MenuItem.Chef.user_id)) {
+                                subjects.push({
+                                  id: item.MenuItem.Chef.user_id,
+                                  name: `${item.MenuItem.Chef.User.first_name} ${item.MenuItem.Chef.User.last_name}`,
+                                  type: 'chef'
+                                })
+                                addedChefs.add(item.MenuItem.Chef.user_id)
+                              }
+                            })
+
+                            setComplaintSubject(subjects)
+                            setShowComplaintForm(true)
+                          }}
+                          style={{
+                            background: "#fbbf24",
+                            color: "#0f172a",
+                            border: "none",
+                            padding: "8px 16px",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontWeight: "500",
+                          }}
+                        >
+                          File Complaint/Compliment
                         </button>
                       )}
                     </div>
@@ -913,6 +959,44 @@ function DeliveryDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Complaint Form Modal */}
+      {showComplaintForm && complaintSubject && complaintSubject.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowComplaintForm(false)}
+        >
+          <div
+            style={{ maxWidth: "600px", width: "100%", padding: "20px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <UniversalComplaintForm
+              subjects={complaintSubject}
+              onSubmit={() => {
+                setShowComplaintForm(false)
+                setComplaintSubject(null)
+                loadComplaints()
+                alert("Complaint/Compliment submitted successfully!")
+              }}
+              onCancel={() => {
+                setShowComplaintForm(false)
+                setComplaintSubject(null)
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

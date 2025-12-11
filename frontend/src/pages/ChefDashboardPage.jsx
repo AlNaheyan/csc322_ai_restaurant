@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { chefService } from "../services/chefService"
 import socketService from "../services/socketService"
+import UniversalComplaintForm from "../components/UniversalComplaintForm"
 
 function ChefDashboardPage() {
   const [stats, setStats] = useState(null)
@@ -25,6 +26,8 @@ function ChefDashboardPage() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState("orders")
   const [complaintsTab, setComplaintsTab] = useState("received")
+  const [showComplaintForm, setShowComplaintForm] = useState(false)
+  const [complaintSubject, setComplaintSubject] = useState(null)
 
   useEffect(() => {
     loadDashboardData()
@@ -440,6 +443,9 @@ function ChefDashboardPage() {
 
                   <div style={{ marginTop: "15px", paddingTop: "15px", borderTop: "1px solid #334155" }}>
                     <p style={{ color: "#94a3b8", fontSize: "14px", margin: "5px 0" }}>
+                      <strong style={{ color: "#cbd5e1" }}>Customer:</strong> {order.Customer?.User?.first_name} {order.Customer?.User?.last_name}
+                    </p>
+                    <p style={{ color: "#94a3b8", fontSize: "14px", margin: "5px 0" }}>
                       <strong style={{ color: "#cbd5e1" }}>Delivery Address:</strong> {order.delivery_address}
                     </p>
                     {order.special_instructions && (
@@ -449,8 +455,8 @@ function ChefDashboardPage() {
                     )}
                   </div>
 
-                  {(order.status === "pending" || order.status === "confirmed" || order.status === "preparing") && (
-                    <div style={{ marginTop: "15px" }}>
+                  <div style={{ marginTop: "15px", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+                    {(order.status === "pending" || order.status === "confirmed" || order.status === "preparing") && (
                       <button
                         onClick={() => handleMarkReady(order.order_id)}
                         style={{
@@ -469,8 +475,51 @@ function ChefDashboardPage() {
                       >
                         Mark as Ready for Delivery
                       </button>
-                    </div>
-                  )}
+                    )}
+                    {order.status === "delivered" && (
+                      <button
+                        onClick={() => {
+                          const subjects = []
+
+                          // Add customer if available
+                          if (order.Customer?.User) {
+                            subjects.push({
+                              id: order.Customer.user_id,
+                              name: `${order.Customer.User.first_name} ${order.Customer.User.last_name}`,
+                              type: 'customer'
+                            })
+                          }
+
+                          // Add delivery person if available
+                          if (order.DeliveryPerson?.User) {
+                            subjects.push({
+                              id: order.DeliveryPerson.user_id,
+                              name: `${order.DeliveryPerson.User.first_name} ${order.DeliveryPerson.User.last_name}`,
+                              type: 'delivery'
+                            })
+                          }
+
+                          setComplaintSubject(subjects)
+                          setShowComplaintForm(true)
+                        }}
+                        style={{
+                          background: "#fbbf24",
+                          color: "#000",
+                          border: "none",
+                          padding: "10px 20px",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "16px",
+                          fontWeight: "bold",
+                          transition: "transform 0.2s ease",
+                        }}
+                        onMouseOver={(e) => (e.target.style.transform = "scale(1.05)")}
+                        onMouseOut={(e) => (e.target.style.transform = "scale(1)")}
+                      >
+                        File Complaint/Compliment
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -904,6 +953,44 @@ function ChefDashboardPage() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Complaint Form Modal */}
+      {showComplaintForm && complaintSubject && complaintSubject.length > 0 && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            background: "rgba(0, 0, 0, 0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+          onClick={() => setShowComplaintForm(false)}
+        >
+          <div
+            style={{ maxWidth: "600px", width: "100%", padding: "20px" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <UniversalComplaintForm
+              subjects={complaintSubject}
+              onSubmit={() => {
+                setShowComplaintForm(false)
+                setComplaintSubject(null)
+                loadComplaints()
+                alert("Complaint/Compliment submitted successfully!")
+              }}
+              onCancel={() => {
+                setShowComplaintForm(false)
+                setComplaintSubject(null)
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-const { MenuItem, Employee, User, OrderItem, Order } = require('../models');
+const { MenuItem, Employee, User, OrderItem, Order, Customer } = require('../models');
 const { Op } = require('sequelize');
 
 class ChefService {
@@ -78,7 +78,7 @@ class ChefService {
     const orders = await Order.findAll({
       where: {
         status: {
-          [Op.in]: ['pending', 'confirmed', 'preparing', 'ready_for_delivery']
+          [Op.in]: ['pending', 'confirmed', 'preparing', 'ready_for_delivery', 'ready', 'out_for_delivery', 'delivered']
         }
       },
       include: [{
@@ -88,9 +88,22 @@ class ChefService {
           model: MenuItem,
           attributes: ['name', 'price']
         }]
+      }, {
+        model: Customer,
+        include: [{
+          model: User,
+          attributes: ['user_id', 'first_name', 'last_name', 'email']
+        }]
+      }, {
+        model: Employee,
+        as: 'DeliveryPerson',
+        include: [{
+          model: User,
+          attributes: ['user_id', 'first_name', 'last_name']
+        }]
       }],
       order: [['created_at', 'DESC']],
-      limit: 50
+      limit: 50  // Limit to recent 50 orders to avoid showing too many old orders
     });
 
     return orders;

@@ -31,20 +31,31 @@ class DeliveryService {
       where: {
         assigned_delivery_person: employeeId,
         status: {
-          [Op.in]: ['ready', 'out_for_delivery']
+          [Op.in]: ['ready', 'out_for_delivery', 'delivered']
         }
       },
       include: [
         {
           model: Customer,
-          include: [{ model: User, attributes: ['first_name', 'last_name', 'phone'] }]
+          include: [{ model: User, attributes: ['user_id', 'first_name', 'last_name', 'phone'] }]
         },
         {
           model: OrderItem,
-          include: [{ model: MenuItem }]
+          include: [{
+            model: MenuItem,
+            include: [{
+              model: Employee,
+              as: 'Chef',
+              include: [{
+                model: User,
+                attributes: ['user_id', 'first_name', 'last_name']
+              }]
+            }]
+          }]
         }
       ],
-      order: [['created_at', 'DESC']]
+      order: [['created_at', 'DESC']],
+      limit: 50  // Limit to recent 50 deliveries to avoid showing too many old orders
     });
 
     return orders;

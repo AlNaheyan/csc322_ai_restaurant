@@ -121,7 +121,12 @@ class ManagerController {
   async createMemo(req, res, next) {
     try {
       const { referenceType, referenceId, memoText } = req.body;
-      const memo = await memoService.createMemo(req.user.userId, referenceType, referenceId, memoText);
+      const memo = await memoService.createMemo(
+        req.user.userId,
+        referenceType,
+        referenceId,
+        memoText
+      );
       res.status(201).json(memo);
     } catch (error) {
       next(error);
@@ -131,7 +136,10 @@ class ManagerController {
   async getMemosByReference(req, res, next) {
     try {
       const { referenceType, referenceId } = req.params;
-      const memos = await memoService.getMemosByReference(referenceType, parseInt(referenceId));
+      const memos = await memoService.getMemosByReference(
+        referenceType,
+        parseInt(referenceId)
+      );
       res.json(memos);
     } catch (error) {
       next(error);
@@ -140,7 +148,9 @@ class ManagerController {
 
   async getAllMemos(req, res, next) {
     try {
-      const managerId = req.query.managerId ? parseInt(req.query.managerId) : null;
+      const managerId = req.query.managerId
+        ? parseInt(req.query.managerId)
+        : null;
       const memos = await memoService.getAllMemos(managerId);
       res.json(memos);
     } catch (error) {
@@ -162,7 +172,11 @@ class ManagerController {
     try {
       const { memoId } = req.params;
       const { memoText } = req.body;
-      const memo = await memoService.updateMemo(parseInt(memoId), req.user.userId, memoText);
+      const memo = await memoService.updateMemo(
+        parseInt(memoId),
+        req.user.userId,
+        memoText
+      );
       res.json(memo);
     } catch (error) {
       next(error);
@@ -172,7 +186,10 @@ class ManagerController {
   async deleteMemo(req, res, next) {
     try {
       const { memoId } = req.params;
-      const result = await memoService.deleteMemo(parseInt(memoId), req.user.userId);
+      const result = await memoService.deleteMemo(
+        parseInt(memoId),
+        req.user.userId
+      );
       res.json(result);
     } catch (error) {
       next(error);
@@ -201,7 +218,11 @@ class ManagerController {
   async deleteReportedPost(req, res, next) {
     try {
       const { postId } = req.params;
-      const result = await discussionService.deletePost(parseInt(postId), req.user.userId, req.user.role);
+      const result = await discussionService.deletePost(
+        parseInt(postId),
+        req.user.userId,
+        req.user.role
+      );
       res.json(result);
     } catch (error) {
       next(error);
