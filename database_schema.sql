@@ -89,6 +89,7 @@ CREATE TABLE customers (
     rejection_reason TEXT,
     rejection_date TIMESTAMP,
     deposit_balance DECIMAL(10, 2) DEFAULT 0.00 CHECK (deposit_balance >= 0),
+    cashback_balance DECIMAL(10, 2) DEFAULT 0.00 CHECK (cashback_balance >= 0),
     total_spent DECIMAL(10, 2) DEFAULT 0.00 CHECK (total_spent >= 0),
     order_count INTEGER DEFAULT 0 CHECK (order_count >= 0),
     warning_count INTEGER DEFAULT 0 CHECK (warning_count >= 0),
@@ -183,6 +184,8 @@ CREATE TABLE orders (
     tax DECIMAL(10, 2) NOT NULL CHECK (tax >= 0),
     delivery_fee DECIMAL(10, 2) NOT NULL CHECK (delivery_fee >= 0),
     discount DECIMAL(10, 2) DEFAULT 0.00 CHECK (discount >= 0),
+    cashback_amount DECIMAL(10, 2) DEFAULT 0.00 CHECK (cashback_amount >= 0),
+    cashback_awarded BOOLEAN DEFAULT false,
     total DECIMAL(10, 2) NOT NULL CHECK (total >= 0),
     is_free_delivery BOOLEAN DEFAULT false,
     delivery_address TEXT NOT NULL,
@@ -346,7 +349,7 @@ CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
     customer_id INTEGER REFERENCES customers (customer_id),
     transaction_type VARCHAR(20) NOT NULL CHECK (
-        transaction_type IN ('deposit', 'order', 'refund')
+        transaction_type IN ('deposit', 'order', 'refund', 'cashback_redeem')
     ),
     amount DECIMAL(10, 2) NOT NULL,
     balance_before DECIMAL(10, 2) NOT NULL,

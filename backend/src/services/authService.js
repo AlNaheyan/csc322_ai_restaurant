@@ -73,7 +73,7 @@ class AuthService {
       include: [
         {
           model: Customer,
-          attributes: ['customer_id', 'deposit_balance', 'is_vip', 'warning_count', 'registration_status']
+          attributes: ['customer_id', 'deposit_balance', 'cashback_balance', 'is_vip', 'warning_count', 'registration_status']
         }
       ]
     });

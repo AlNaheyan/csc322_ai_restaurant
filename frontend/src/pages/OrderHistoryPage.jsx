@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSelector } from "react-redux"
 import { orderService } from "../services/orderService"
 import socketService from "../services/socketService"
 import RatingForm from "../components/RatingForm"
 import ComplaintForm from "../components/ComplaintForm"
 
 function OrderHistoryPage() {
+  const { user } = useSelector((state) => state.auth)
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -52,6 +54,27 @@ function OrderHistoryPage() {
       cancelled: "#ef4444",
     }
     return colors[status] || "#64748b"
+  }
+
+  const cashbackRate = user?.Customer?.is_vip ? 0.1 : 0.05
+
+  const getCashbackInfo = (order) => {
+    if (order.cashback_awarded && order.cashback_amount !== undefined && order.cashback_amount !== null) {
+      return {
+        label: "Cashback Earned",
+        amount: Number.parseFloat(order.cashback_amount),
+        earned: true,
+      }
+    }
+
+    const baseTotal = Number.parseFloat(order.total || 0)
+    const expected = Number.isNaN(baseTotal) ? 0 : baseTotal * cashbackRate
+
+    return {
+      label: "Cashback Pending",
+      amount: Number.parseFloat(expected.toFixed(2)),
+      earned: false,
+    }
   }
 
   if (loading)
@@ -113,205 +136,222 @@ function OrderHistoryPage() {
           </div>
         ) : (
           <div style={{ marginTop: "20px" }}>
-            {orders.map((order) => (
-              <div
-                key={order.order_id}
-                style={{
-                  background: "#1e293b",
-                  border: "1px solid #334155",
-                  borderRadius: "12px",
-                  padding: "25px",
-                  marginBottom: "20px",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-                  transition: "all 0.3s ease",
-                }}
-              >
+            {orders.map((order) => {
+              const cashbackInfo = getCashbackInfo(order)
+
+              return (
                 <div
+                  key={order.order_id}
                   style={{
-                    display: "flex",
-                    justifyContent: "space-between",
+                    background: "#1e293b",
+                    border: "1px solid #334155",
+                    borderRadius: "12px",
+                    padding: "25px",
                     marginBottom: "20px",
-                    alignItems: "flex-start",
-                    flexWrap: "wrap",
-                    gap: "15px",
+                    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
+                    transition: "all 0.3s ease",
                   }}
                 >
-                  <div>
-                    <h3 style={{ color: "#ffffff", margin: "0 0 8px 0", fontSize: "18px" }}>Order #{order.order_id}</h3>
-                    <p style={{ color: "#94a3b8", fontSize: "14px", margin: 0 }}>
-                      {new Date(order.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <span
-                      style={{
-                        background: getStatusColor(order.status),
-                        color: "#0f172a",
-                        padding: "8px 16px",
-                        borderRadius: "6px",
-                        fontSize: "13px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {order.status.replace(/_/g, " ").toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ borderTop: "1px solid #334155", paddingTop: "20px", marginTop: "20px" }}>
-                  <h4 style={{ color: "#ffffff", marginBottom: "15px", fontSize: "16px" }}>Items:</h4>
-                  {order.OrderItems?.map((item) => (
-                    <div
-                      key={item.order_item_id}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        padding: "12px 0",
-                        borderBottom: "1px solid #334155",
-                      }}
-                    >
-                      <span style={{ color: "#cbd5e1" }}>
-                        {item.MenuItem?.name || "Item"} x {item.quantity}
-                      </span>
-                      <span style={{ color: "#4ade80", fontWeight: "bold" }}>
-                        ${Number.parseFloat(item.price_at_order * item.quantity).toFixed(2)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ color: "#94a3b8" }}>Subtotal:</span>
-                    <span style={{ color: "#e0e7ff" }}>${Number.parseFloat(order.subtotal).toFixed(2)}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ color: "#94a3b8" }}>Tax:</span>
-                    <span style={{ color: "#e0e7ff" }}>${Number.parseFloat(order.tax).toFixed(2)}</span>
-                  </div>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ color: "#94a3b8" }}>Delivery Fee:</span>
-                    <span style={{ color: "#e0e7ff" }}>
-                      {order.is_free_delivery ? (
-                        <span style={{ color: "#4ade80", fontWeight: "bold" }}>FREE</span>
-                      ) : (
-                        `$${Number.parseFloat(order.delivery_fee).toFixed(2)}`
-                      )}
-                    </span>
-                  </div>
-                  {order.discount > 0 && (
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                      <span style={{ color: "#94a3b8" }}>Discount:</span>
-                      <span style={{ color: "#4ade80", fontWeight: "bold" }}>
-                        -${Number.parseFloat(order.discount).toFixed(2)}
-                      </span>
-                    </div>
-                  )}
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      marginTop: "15px",
-                      paddingTop: "15px",
-                      borderTop: "2px solid #4ade80",
+                      marginBottom: "20px",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                      gap: "15px",
                     }}
                   >
-                    <span style={{ color: "#ffffff", fontWeight: "bold", fontSize: "18px" }}>Total:</span>
-                    <span style={{ color: "#4ade80", fontWeight: "bold", fontSize: "18px" }}>
-                      ${Number.parseFloat(order.total).toFixed(2)}
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
-                  <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
-                    <strong style={{ color: "#ffffff" }}>Delivery Address:</strong> {order.delivery_address}
-                  </p>
-                  {order.special_instructions && (
-                    <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
-                      <strong style={{ color: "#ffffff" }}>Special Instructions:</strong> {order.special_instructions}
-                    </p>
-                  )}
-                  {order.estimated_delivery_time && (
-                    <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
-                      <strong style={{ color: "#ffffff" }}>Estimated Delivery:</strong>{" "}
-                      {new Date(order.estimated_delivery_time).toLocaleString()}
-                    </p>
-                  )}
-                  {order.actual_delivery_time && (
-                    <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
-                      <strong style={{ color: "#ffffff" }}>Delivered At:</strong>{" "}
-                      {new Date(order.actual_delivery_time).toLocaleString()}
-                    </p>
-                  )}
-                </div>
-
-                {order.status === "delivered" && (
-                  <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
-                    <h4 style={{ color: "#ffffff", marginBottom: "15px", fontSize: "16px" }}>Actions:</h4>
-                    <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                      <button
-                        onClick={() => {
-                          setRatingOrder(order)
-                          setRatingType("food")
-                        }}
+                    <div>
+                      <h3 style={{ color: "#ffffff", margin: "0 0 8px 0", fontSize: "18px" }}>
+                        Order #{order.order_id}
+                      </h3>
+                      <p style={{ color: "#94a3b8", fontSize: "14px", margin: 0 }}>
+                        {new Date(order.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <span
                         style={{
-                          background: "#4ade80",
+                          background: getStatusColor(order.status),
                           color: "#0f172a",
-                          border: "none",
-                          padding: "10px 20px",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                          fontSize: "14px",
+                          padding: "8px 16px",
+                          borderRadius: "6px",
+                          fontSize: "13px",
                           fontWeight: "bold",
-                          transition: "all 0.3s ease",
                         }}
                       >
-                        Rate Food/Chef
-                      </button>
-                      <button
-                        onClick={() => {
-                          setRatingOrder(order)
-                          setRatingType("delivery")
-                        }}
-                        style={{
-                          background: "#06b6d4",
-                          color: "#0f172a",
-                          border: "none",
-                          padding: "10px 20px",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          transition: "all 0.3s ease",
-                        }}
-                      >
-                        Rate Delivery
-                      </button>
-                      <button
-                        onClick={() => {
-                          setRatingOrder(order)
-                          setShowComplaintForm(true)
-                        }}
-                        style={{
-                          background: "#fbbf24",
-                          color: "#1f2937",
-                          border: "none",
-                          padding: "10px 20px",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                          transition: "all 0.3s ease",
-                        }}
-                      >
-                        File Complaint
-                      </button>
+                        {order.status.replace(/_/g, " ").toUpperCase()}
+                      </span>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  <div style={{ borderTop: "1px solid #334155", paddingTop: "20px", marginTop: "20px" }}>
+                    <h4 style={{ color: "#ffffff", marginBottom: "15px", fontSize: "16px" }}>Items:</h4>
+                    {order.OrderItems?.map((item) => (
+                      <div
+                        key={item.order_item_id}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          padding: "12px 0",
+                          borderBottom: "1px solid #334155",
+                        }}
+                      >
+                        <span style={{ color: "#cbd5e1" }}>
+                          {item.MenuItem?.name || "Item"} x {item.quantity}
+                        </span>
+                        <span style={{ color: "#4ade80", fontWeight: "bold" }}>
+                          ${Number.parseFloat(item.price_at_order * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                      <span style={{ color: "#94a3b8" }}>Subtotal:</span>
+                      <span style={{ color: "#e0e7ff" }}>${Number.parseFloat(order.subtotal).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                      <span style={{ color: "#94a3b8" }}>Tax:</span>
+                      <span style={{ color: "#e0e7ff" }}>${Number.parseFloat(order.tax).toFixed(2)}</span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                      <span style={{ color: "#94a3b8" }}>Delivery Fee:</span>
+                      <span style={{ color: "#e0e7ff" }}>
+                        {order.is_free_delivery ? (
+                          <span style={{ color: "#4ade80", fontWeight: "bold" }}>FREE</span>
+                        ) : (
+                          `$${Number.parseFloat(order.delivery_fee).toFixed(2)}`
+                        )}
+                      </span>
+                    </div>
+                    {order.discount > 0 && (
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                        <span style={{ color: "#94a3b8" }}>Discount:</span>
+                        <span style={{ color: "#4ade80", fontWeight: "bold" }}>
+                          -${Number.parseFloat(order.discount).toFixed(2)}
+                        </span>
+                      </div>
+                    )}
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginTop: "15px",
+                        paddingTop: "15px",
+                        borderTop: "2px solid #4ade80",
+                      }}
+                    >
+                      <span style={{ color: "#ffffff", fontWeight: "bold", fontSize: "18px" }}>Total:</span>
+                      <span style={{ color: "#4ade80", fontWeight: "bold", fontSize: "18px" }}>
+                        ${Number.parseFloat(order.total).toFixed(2)}
+                      </span>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px" }}>
+                      <span style={{ color: "#fbbf24", fontWeight: "600", fontSize: "14px" }}>
+                        {cashbackInfo.label} ({Math.round(cashbackRate * 100)}%)
+                      </span>
+                      <span
+                        style={{
+                          color: cashbackInfo.earned ? "#fde68a" : "#eab308",
+                          fontWeight: "700",
+                          fontSize: "16px",
+                        }}
+                      >
+                        ${cashbackInfo.amount.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
+                    <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
+                      <strong style={{ color: "#ffffff" }}>Delivery Address:</strong> {order.delivery_address}
+                    </p>
+                    {order.special_instructions && (
+                      <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
+                        <strong style={{ color: "#ffffff" }}>Special Instructions:</strong> {order.special_instructions}
+                      </p>
+                    )}
+                    {order.estimated_delivery_time && (
+                      <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
+                        <strong style={{ color: "#ffffff" }}>Estimated Delivery:</strong>{" "}
+                        {new Date(order.estimated_delivery_time).toLocaleString()}
+                      </p>
+                    )}
+                    {order.actual_delivery_time && (
+                      <p style={{ color: "#cbd5e1", fontSize: "14px", margin: "8px 0" }}>
+                        <strong style={{ color: "#ffffff" }}>Delivered At:</strong>{" "}
+                        {new Date(order.actual_delivery_time).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+
+                  {order.status === "delivered" && (
+                    <div style={{ marginTop: "20px", paddingTop: "20px", borderTop: "1px solid #334155" }}>
+                      <h4 style={{ color: "#ffffff", marginBottom: "15px", fontSize: "16px" }}>Actions:</h4>
+                      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                        <button
+                          onClick={() => {
+                            setRatingOrder(order)
+                            setRatingType("food")
+                          }}
+                          style={{
+                            background: "#4ade80",
+                            color: "#0f172a",
+                            border: "none",
+                            padding: "10px 20px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            transition: "all 0.3s ease",
+                          }}
+                        >
+                          Rate Food/Chef
+                        </button>
+                        <button
+                          onClick={() => {
+                            setRatingOrder(order)
+                            setRatingType("delivery")
+                          }}
+                          style={{
+                            background: "#06b6d4",
+                            color: "#0f172a",
+                            border: "none",
+                            padding: "10px 20px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            transition: "all 0.3s ease",
+                          }}
+                        >
+                          Rate Delivery
+                        </button>
+                        <button
+                          onClick={() => setShowComplaintForm(true)}
+                          style={{
+                            background: "#fbbf24",
+                            color: "#1f2937",
+                            border: "none",
+                            padding: "10px 20px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            fontWeight: "bold",
+                            transition: "all 0.3s ease",
+                          }}
+                        >
+                          File Complaint
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 

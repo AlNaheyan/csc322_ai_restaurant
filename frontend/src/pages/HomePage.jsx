@@ -1,12 +1,18 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import api from "../services/api"
+import { customerService } from "../services/customerService"
+import { authService } from "../services/authService"
+import { setUser } from "../store/authSlice"
 
 function HomePage() {
   const { isAuthenticated, user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
   const [topChefs, setTopChefs] = useState([])
+  const [redeemLoading, setRedeemLoading] = useState(false)
+  const [redeemError, setRedeemError] = useState(null)
 
   useEffect(() => {
     const loadTopChefs = async () => {
@@ -20,6 +26,47 @@ function HomePage() {
 
     loadTopChefs()
   }, [])
+
+  const cashbackRate = user?.Customer?.is_vip ? 0.1 : 0.05
+
+  useEffect(() => {
+    const refreshProfile = async () => {
+      if (!isAuthenticated) return
+      try {
+        const refreshed = await authService.getCurrentUser()
+        dispatch(setUser(refreshed))
+      } catch (err) {
+        console.error("Failed to refresh account info:", err)
+      }
+    }
+
+    refreshProfile()
+  }, [isAuthenticated, dispatch])
+
+  const handleRedeemCashback = async () => {
+    if (!user?.Customer) return
+    setRedeemLoading(true)
+    setRedeemError(null)
+
+    try {
+      const result = await customerService.redeemCashback()
+      dispatch(
+        setUser({
+          ...user,
+          Customer: {
+            ...user.Customer,
+            deposit_balance: result.deposit_balance,
+            cashback_balance: result.cashback_balance,
+          },
+        }),
+      )
+      alert("Cashback redeemed to your main balance!")
+    } catch (err) {
+      setRedeemError(err.response?.data?.error || "Failed to redeem cashback")
+    } finally {
+      setRedeemLoading(false)
+    }
+  }
 
   if (!isAuthenticated) {
     return (
@@ -329,36 +376,123 @@ function HomePage() {
 
           {user?.Customer && (
             <>
+              {redeemError && (
+                <div
+                  style={{
+                    background: "#7f1d1d",
+                    color: "#fca5a5",
+                    padding: "12px 16px",
+                    borderRadius: "8px",
+                    border: "1px solid #dc2626",
+                    marginBottom: "10px",
+                  }}
+                >
+                  {redeemError}
+                </div>
+              )}
+
               <div
                 style={{
-                  padding: "25px",
-                  background: "#0f172a",
-                  borderRadius: "15px",
-                  border: "2px solid #4ade80",
-                  boxShadow: "0 10px 30px rgba(74, 222, 128, 0.15)",
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+                  gap: "20px",
                 }}
               >
-                <p
+                <div
                   style={{
-                    color: "#cbd5e1",
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    marginBottom: "8px",
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
+                    padding: "25px",
+                    background: "#0f172a",
+                    borderRadius: "15px",
+                    border: "2px solid #4ade80",
+                    boxShadow: "0 10px 30px rgba(74, 222, 128, 0.15)",
                   }}
                 >
-                  Account Balance
-                </p>
-                <p
+                  <p
+                    style={{
+                      color: "#cbd5e1",
+                      fontSize: "14px",
+                      fontWeight: "600",
+                      marginBottom: "8px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    Account Balance
+                  </p>
+                  <p
+                    style={{
+                      color: "#4ade80",
+                      fontSize: "2.5rem",
+                      fontWeight: "700",
+                    }}
+                  >
+                    ${Number.parseFloat(user.Customer.deposit_balance).toFixed(2)}
+                  </p>
+                </div>
+
+                <div
                   style={{
-                    color: "#4ade80",
-                    fontSize: "2.5rem",
-                    fontWeight: "700",
+                    padding: "25px",
+                    background: "#0f172a",
+                    borderRadius: "15px",
+                    border: "2px solid #fbbf24",
+                    boxShadow: "0 10px 30px rgba(251, 191, 36, 0.12)",
                   }}
                 >
-                  ${Number.parseFloat(user.Customer.deposit_balance).toFixed(2)}
-                </p>
+                  <p
+                    style={{
+                      color: "#fbbf24",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      marginBottom: "8px",
+                      textTransform: "uppercase",
+                      letterSpacing: "1px",
+                    }}
+                  >
+                    Cashback Balance
+                  </p>
+                  <p
+                    style={{
+                      color: "#fde68a",
+                      fontSize: "2.2rem",
+                      fontWeight: "800",
+                      marginBottom: "6px",
+                    }}
+                  >
+                    ${Number.parseFloat(user.Customer.cashback_balance || 0).toFixed(2)}
+                  </p>
+                  <p style={{ color: "#e2e8f0", fontSize: "13px", marginBottom: "12px" }}>
+                    Earn {Math.round(cashbackRate * 100)}% back after each delivered order.
+                  </p>
+                  <button
+                    onClick={handleRedeemCashback}
+                    disabled={redeemLoading || Number.parseFloat(user.Customer.cashback_balance || 0) <= 0}
+                    style={{
+                      background:
+                        redeemLoading || Number.parseFloat(user.Customer.cashback_balance || 0) <= 0
+                          ? "#475569"
+                          : "#fbbf24",
+                      color: "#0f172a",
+                      border: "none",
+                      padding: "12px 20px",
+                      borderRadius: "10px",
+                      cursor:
+                        redeemLoading || Number.parseFloat(user.Customer.cashback_balance || 0) <= 0
+                          ? "not-allowed"
+                          : "pointer",
+                      fontWeight: "700",
+                      fontSize: "14px",
+                      transition: "all 0.3s ease",
+                      width: "100%",
+                      boxShadow: "0 8px 20px rgba(251, 191, 36, 0.25)",
+                    }}
+                  >
+                    {redeemLoading ? "Redeeming..." : "Redeem to Balance"}
+                  </button>
+                  <p style={{ color: "#cbd5e1", fontSize: "12px", marginTop: "10px" }}>
+                    Cashback is credited after delivery. Regular: 5%, VIP: 10%.
+                  </p>
+                </div>
               </div>
 
               <div

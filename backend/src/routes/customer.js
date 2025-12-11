@@ -7,6 +7,7 @@ router.use(authenticate);
 
 router.get('/profile', customerController.getProfile);
 router.post('/deposit', customerController.addDeposit);
+router.post('/redeem-cashback', customerController.redeemCashback);
 router.get('/transactions', customerController.getTransactionHistory);
 router.post('/close-account', customerController.requestAccountClosure);
 

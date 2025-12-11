@@ -1,4 +1,5 @@
 const { Order, OrderItem, MenuItem, Customer, User, Employee } = require('../models');
+const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 
 class DeliveryService {
@@ -97,7 +98,41 @@ class DeliveryService {
       updateData.actual_delivery_time = new Date();
     }
 
-    await order.update(updateData);
+    if (status !== 'delivered') {
+      await order.update(updateData);
+      return { message: 'Order status updated', order };
+    }
+
+    const customer = await Customer.findByPk(order.customer_id);
+    if (!customer) {
+      throw new Error('Customer not found for this order');
+    }
+    const cashbackRate = customer?.is_vip ? 0.10 : 0.05;
+    const cashbackAmount = parseFloat((parseFloat(order.total) * cashbackRate).toFixed(2));
+
+    await sequelize.transaction(async (transaction) => {
+      await order.update(updateData, { transaction });
+
+      if (!order.cashback_awarded && cashbackAmount > 0) {
+        const currentCashback = parseFloat(customer.cashback_balance);
+        const updatedCashback = currentCashback + cashbackAmount;
+
+        await customer.update(
+          { cashback_balance: updatedCashback },
+          { transaction }
+        );
+
+        await order.update(
+          {
+            cashback_awarded: true,
+            cashback_amount: cashbackAmount
+          },
+          { transaction }
+        );
+      }
+    });
+
+    await order.reload();
 
     return { message: 'Order status updated', order };
   }

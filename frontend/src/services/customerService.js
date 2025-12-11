@@ -11,6 +11,11 @@ export const customerService = {
     return response.data;
   },
 
+  redeemCashback: async () => {
+    const response = await api.post('/customer/redeem-cashback');
+    return response.data;
+  },
+
   getTransactionHistory: async (limit = 50) => {
     const response = await api.get(`/customer/transactions?limit=${limit}`);
     return response.data;

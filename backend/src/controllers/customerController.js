@@ -21,6 +21,15 @@ class CustomerController {
     }
   }
 
+  async redeemCashback(req, res, next) {
+    try {
+      const result = await customerService.redeemCashback(req.user.userId);
+      res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getProfile(req, res, next) {
     try {
       const customer = await customerService.getCustomerByUserId(req.user.userId);

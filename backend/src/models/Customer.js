@@ -30,6 +30,10 @@ const Customer = sequelize.define('Customer', {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
+  cashback_balance: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
+  },
   total_spent: {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00

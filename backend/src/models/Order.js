@@ -35,6 +35,14 @@ const Order = sequelize.define('Order', {
     type: DataTypes.DECIMAL(10, 2),
     defaultValue: 0.00
   },
+  cashback_amount: {
+    type: DataTypes.DECIMAL(10, 2),
+    defaultValue: 0.00
+  },
+  cashback_awarded: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  },
   total: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false

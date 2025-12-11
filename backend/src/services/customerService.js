@@ -59,6 +59,53 @@ class CustomerService {
     }
   }
 
+  async redeemCashback(userId) {
+    const customer = await Customer.findOne({ where: { user_id: userId } });
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    const availableCashback = parseFloat(customer.cashback_balance);
+    if (availableCashback <= 0) {
+      throw new Error('No cashback available to redeem');
+    }
+
+    const transaction = await sequelize.transaction();
+
+    try {
+      const depositBefore = parseFloat(customer.deposit_balance);
+      const depositAfter = depositBefore + availableCashback;
+
+      await customer.update(
+        {
+          deposit_balance: depositAfter,
+          cashback_balance: 0
+        },
+        { transaction }
+      );
+
+      await Transaction.create({
+        customer_id: customer.customer_id,
+        transaction_type: 'cashback_redeem',
+        amount: availableCashback,
+        balance_before: depositBefore,
+        balance_after: depositAfter,
+        description: 'Cashback redeemed to deposit balance'
+      }, { transaction });
+
+      await transaction.commit();
+
+      return {
+        message: 'Cashback redeemed successfully',
+        deposit_balance: depositAfter,
+        cashback_balance: 0
+      };
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  }
+
   async getTransactionHistory(userId, limit = 50) {
     const customer = await Customer.findOne({ where: { user_id: userId } });
     if (!customer) {
