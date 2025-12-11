@@ -19,6 +19,8 @@ import ChatPage from './pages/ChatPage';
 import ManagerKBPage from './pages/ManagerKBPage';
 import ContributeKBPage from './pages/ContributeKBPage';
 import ArticlePage from './pages/ArticlePage';
+import DiscussionsPage from './pages/DiscussionsPage';
+import TopicDetailPage from './pages/TopicDetailPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
@@ -113,6 +115,8 @@ function App() {
               <ManagerKBPage />
             </ProtectedRoute>
           } />
+          <Route path="/discussions" element={<DiscussionsPage />} />
+          <Route path="/discussions/:topicId" element={<TopicDetailPage />} />
         </Routes>
       </Layout>
     </Router>
