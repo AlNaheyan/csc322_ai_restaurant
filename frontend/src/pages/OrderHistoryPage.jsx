@@ -331,7 +331,10 @@ function OrderHistoryPage() {
                           Rate Delivery
                         </button>
                         <button
-                          onClick={() => setShowComplaintForm(true)}
+                          onClick={() => {
+                            setRatingOrder(order)
+                            setShowComplaintForm(true)
+                          }}
                           style={{
                             background: "#fbbf24",
                             color: "#1f2937",
