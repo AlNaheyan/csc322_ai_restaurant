@@ -139,8 +139,16 @@ function App() {
               <ManagerKBPage />
             </ProtectedRoute>
           } />
-          <Route path="/discussions" element={<DiscussionsPage />} />
-          <Route path="/discussions/:topicId" element={<TopicDetailPage />} />
+          <Route path="/discussions" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip', 'chef', 'delivery', 'manager']}>
+              <DiscussionsPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/discussions/:topicId" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip', 'chef', 'delivery', 'manager']}>
+              <TopicDetailPage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Layout>
     </Router>
