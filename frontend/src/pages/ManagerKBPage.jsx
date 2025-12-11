@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Flag, CheckCircle, Eye, ThumbsUp, User, Calendar, XCircle } from 'lucide-react';
 import { chatService } from '../services/chatService';
 
 const ManagerKBPage = () => {
@@ -102,169 +103,421 @@ const ManagerKBPage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8 px-4">
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Knowledge Base Management</h1>
-          <p className="text-gray-600 mt-2">
-            Review and manage knowledge base articles
-          </p>
+    <div style={{
+      padding: 'clamp(20px, 4vw, 50px)',
+      maxWidth: '1400px',
+      width: '100%',
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{
+          color: '#fff',
+          fontSize: 'clamp(28px, 5vw, 42px)',
+          fontWeight: '700',
+          margin: '0 0 8px 0'
+        }}>
+          Knowledge Base Management
+        </h1>
+        <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+          Review and manage knowledge base articles
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', flexWrap: 'wrap' }}>
+        <button
+          onClick={() => setActiveTab('flagged')}
+          style={{
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontWeight: '600',
+            fontSize: '14px',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.2s ease',
+            background: activeTab === 'flagged'
+              ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)'
+              : 'rgba(255, 255, 255, 0.06)',
+            color: activeTab === 'flagged' ? '#fff' : '#999'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'flagged') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'flagged') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+            }
+          }}
+        >
+          Flagged Articles ({flaggedArticles.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('pending')}
+          style={{
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontWeight: '600',
+            fontSize: '14px',
+            cursor: 'pointer',
+            border: 'none',
+            transition: 'all 0.2s ease',
+            background: activeTab === 'pending'
+              ? 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)'
+              : 'rgba(255, 255, 255, 0.06)',
+            color: activeTab === 'pending' ? '#fff' : '#999'
+          }}
+          onMouseEnter={(e) => {
+            if (activeTab !== 'pending') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (activeTab !== 'pending') {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+            }
+          }}
+        >
+          Pending Approval ({pendingArticles.length})
+        </button>
+      </div>
+
+      {error && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#ef4444',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px'
+        }}>
+          {error}
         </div>
+      )}
 
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setActiveTab('flagged')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === 'flagged'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Flagged Articles ({flaggedArticles.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('pending')}
-            className={`px-6 py-3 rounded-lg font-semibold transition ${
-              activeTab === 'pending'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
-          >
-            Pending Approval ({pendingArticles.length})
-          </button>
+      {successMessage && (
+        <div style={{
+          background: 'rgba(34, 197, 94, 0.1)',
+          border: '1px solid rgba(34, 197, 94, 0.3)',
+          color: '#22c55e',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px'
+        }}>
+          {successMessage}
         </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
-            {error}
+      {loading ? (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '60px',
+          color: '#999'
+        }}>
+          Loading...
+        </div>
+      ) : activeTab === 'flagged' ? (
+        flaggedArticles.length === 0 ? (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '60px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            backdropFilter: 'blur(4px)'
+          }}>
+            <CheckCircle size={48} style={{ color: '#22c55e', margin: '0 auto 16px', display: 'block' }} />
+            <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+              No flagged articles to review
+            </p>
           </div>
-        )}
-
-        {successMessage && (
-          <div className="mb-4 p-4 bg-green-50 text-green-700 rounded-lg">
-            {successMessage}
-          </div>
-        )}
-
-        {loading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          </div>
-        ) : activeTab === 'flagged' ? (
-          flaggedArticles.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600">No flagged articles to review</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {flaggedArticles.map(article => (
-              <div key={article.article_id} className="bg-white border rounded-lg p-6 shadow-sm">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900">{article.title}</h3>
-                    <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+        ) : (
+          <div style={{ display: 'grid', gap: '16px' }}>
+            {flaggedArticles.map(article => (
+              <div key={article.article_id} style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
+                borderLeft: '4px solid #ef4444',
+                padding: '24px',
+                borderRadius: '12px',
+                backdropFilter: 'blur(4px)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: '600', margin: '0 0 8px 0' }}>
+                      {article.title}
+                    </h3>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      color: '#60a5fa',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       {article.category}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
-                      {article.flag_count} flag{article.flag_count !== 1 ? 's' : ''}
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#ef4444',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    <Flag size={14} />
+                    {article.flag_count} flag{article.flag_count !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.6', margin: '0', whiteSpace: 'pre-wrap' }}>
+                    {article.content}
+                  </p>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: '16px',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  flexWrap: 'wrap',
+                  gap: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    <span style={{ color: '#999', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Eye size={14} />
+                      {article.view_count} views
                     </span>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <p className="text-gray-700 whitespace-pre-wrap">{article.content}</p>
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="text-sm text-gray-500">
-                    <span>Views: {article.view_count}</span>
-                    <span className="mx-2">•</span>
-                    <span>Helpful: {article.helpful_count}</span>
+                    <span style={{ color: '#999', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <ThumbsUp size={14} />
+                      {article.helpful_count} helpful
+                    </span>
                     {article.Author && (
-                      <>
-                        <span className="mx-2">•</span>
-                        <span>Author: {article.Author.first_name} {article.Author.last_name}</span>
-                      </>
+                      <span style={{ color: '#999', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <User size={14} />
+                        {article.Author.first_name} {article.Author.last_name}
+                      </span>
                     )}
                   </div>
 
-                  <div className="flex gap-2">
+                  <div style={{ display: 'flex', gap: '8px' }}>
                     <button
                       onClick={() => handleUnflag(article.article_id)}
-                      className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(34, 197, 94, 0.15)',
+                        color: '#22c55e',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
                     >
-                      Unflag (Keep Article)
+                      Unflag
                     </button>
                     <button
                       onClick={() => handleDelete(article.article_id)}
-                      className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        color: '#ef4444',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
                     >
-                      Delete Article
+                      Delete
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-          )
+        )
+      ) : (
+        pendingArticles.length === 0 ? (
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.04)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '60px',
+            borderRadius: '12px',
+            textAlign: 'center',
+            backdropFilter: 'blur(4px)'
+          }}>
+            <CheckCircle size={48} style={{ color: '#22c55e', margin: '0 auto 16px', display: 'block' }} />
+            <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+              No pending articles to review
+            </p>
+          </div>
         ) : (
-          pendingArticles.length === 0 ? (
-            <div className="text-center py-12 bg-gray-50 rounded-lg">
-              <p className="text-gray-600">No pending articles to review</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {pendingArticles.map(article => (
-                <div key={article.article_id} className="bg-white border rounded-lg p-6 shadow-sm">
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-gray-900">{article.title}</h3>
-                      <span className="inline-block mt-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                        {article.category}
+          <div style={{ display: 'grid', gap: '16px' }}>
+            {pendingArticles.map(article => (
+              <div key={article.article_id} style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                borderLeft: '4px solid #3b82f6',
+                padding: '24px',
+                borderRadius: '12px',
+                backdropFilter: 'blur(4px)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                  <div style={{ flex: 1 }}>
+                    <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: '600', margin: '0 0 8px 0' }}>
+                      {article.title}
+                    </h3>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      background: 'rgba(59, 130, 246, 0.15)',
+                      color: '#60a5fa',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      {article.category}
+                    </span>
+                  </div>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '6px 14px',
+                    background: 'rgba(251, 191, 36, 0.15)',
+                    color: '#fbbf24',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    Pending Approval
+                  </span>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.6', margin: '0', whiteSpace: 'pre-wrap' }}>
+                    {article.content}
+                  </p>
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingTop: '16px',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                  flexWrap: 'wrap',
+                  gap: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                    {article.Author && (
+                      <span style={{ color: '#999', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <User size={14} />
+                        {article.Author.first_name} {article.Author.last_name}
                       </span>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                      <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
-                        Pending Approval
-                      </span>
-                    </div>
+                    )}
+                    <span style={{ color: '#999', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Calendar size={14} />
+                      {new Date(article.created_at).toLocaleDateString()}
+                    </span>
                   </div>
 
-                  <div className="mb-4">
-                    <p className="text-gray-700 whitespace-pre-wrap">{article.content}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-4 border-t">
-                    <div className="text-sm text-gray-500">
-                      {article.Author && (
-                        <span>Author: {article.Author.first_name} {article.Author.last_name} ({article.Author.email})</span>
-                      )}
-                      <span className="mx-2">•</span>
-                      <span>Submitted: {new Date(article.created_at).toLocaleDateString()}</span>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleApprove(article.article_id)}
-                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(article.article_id)}
-                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => handleApprove(article.article_id)}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(34, 197, 94, 0.15)',
+                        color: '#22c55e',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.25)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(34, 197, 94, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <CheckCircle size={14} />
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleReject(article.article_id)}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'rgba(239, 68, 68, 0.15)',
+                        color: '#ef4444',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.25)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(239, 68, 68, 0.15)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <XCircle size={14} />
+                      Reject
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          )
-        )}
-      </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </div>
   );
 };
 

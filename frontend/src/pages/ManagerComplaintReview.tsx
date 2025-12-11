@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface Complaint {
   complaint_id: number;
@@ -84,6 +84,7 @@ export default function ManagerComplaintReview() {
       setReviewingId(null);
       setNotes('');
       fetchComplaints();
+      alert('Review submitted successfully!');
     } catch (err: any) {
       alert(err.message);
     }
@@ -91,84 +92,173 @@ export default function ManagerComplaintReview() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading complaints...</div>
+      <div style={{ padding: '40px', textAlign: 'center', color: '#999' }}>
+        Loading complaints...
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Complaint Review Dashboard</h1>
+    <div style={{
+      padding: 'clamp(20px, 4vw, 50px)',
+      maxWidth: '1400px',
+      width: '100%',
+      margin: '0 auto',
+      minHeight: '100vh'
+    }}>
+      <div style={{ marginBottom: '40px' }}>
+        <h1 style={{
+          color: '#fff',
+          fontSize: 'clamp(28px, 5vw, 42px)',
+          fontWeight: '700',
+          margin: '0 0 8px 0'
+        }}>
+          Complaint Review Dashboard
+        </h1>
+        <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+          Review and manage customer complaints and compliments
+        </p>
+      </div>
 
       {error && (
-        <div className="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          color: '#ef4444',
+          padding: '16px',
+          borderRadius: '8px',
+          marginBottom: '24px'
+        }}>
           {error}
         </div>
       )}
 
       {complaints.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
-          No pending complaints to review
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.04)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          padding: '60px',
+          borderRadius: '12px',
+          textAlign: 'center',
+          backdropFilter: 'blur(4px)'
+        }}>
+          <CheckCircle size={48} style={{ color: '#22c55e', margin: '0 auto 16px', display: 'block' }} />
+          <p style={{ color: '#999', fontSize: '16px', margin: '0' }}>
+            No pending complaints to review
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div style={{ display: 'grid', gap: '16px' }}>
           {complaints.map((complaint) => (
             <div
               key={complaint.complaint_id}
-              className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
-                complaint.is_vip_complaint ? 'border-yellow-500' : 'border-gray-300'
-              }`}
+              style={{
+                background: 'rgba(255, 255, 255, 0.04)',
+                border: complaint.is_vip_complaint
+                  ? '1px solid rgba(251, 191, 36, 0.3)'
+                  : '1px solid rgba(255, 255, 255, 0.08)',
+                borderLeft: complaint.is_vip_complaint
+                  ? '4px solid #fbbf24'
+                  : '4px solid rgba(255, 255, 255, 0.08)',
+                padding: '24px',
+                borderRadius: '12px',
+                backdropFilter: 'blur(4px)'
+              }}
             >
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      complaint.complaint_type === 'complaint'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-green-100 text-green-800'
-                    }`}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+                    <span style={{
+                      display: 'inline-block',
+                      padding: '4px 12px',
+                      background: complaint.complaint_type === 'complaint'
+                        ? 'rgba(239, 68, 68, 0.15)'
+                        : 'rgba(34, 197, 94, 0.15)',
+                      color: complaint.complaint_type === 'complaint' ? '#ef4444' : '#22c55e',
+                      borderRadius: '6px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       {complaint.complaint_type}
                     </span>
                     {complaint.is_vip_complaint && (
-                      <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                      <span style={{
+                        display: 'inline-block',
+                        padding: '4px 12px',
+                        background: 'rgba(251, 191, 36, 0.15)',
+                        color: '#fbbf24',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
                         VIP
                       </span>
                     )}
                     {complaint.is_disputed && (
-                      <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '4px 12px',
+                        background: 'rgba(249, 115, 22, 0.15)',
+                        color: '#f97316',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        <AlertTriangle size={12} />
                         DISPUTED
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-600">
-                    Subject: {complaint.Subject.username} ({complaint.subject_type})
+                  <p style={{ color: '#999', fontSize: '14px', margin: '4px 0' }}>
+                    <strong style={{ color: '#ccc' }}>Subject:</strong> {complaint.Subject.username} ({complaint.subject_type})
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Filed by: {complaint.Filer.username}
+                  <p style={{ color: '#999', fontSize: '14px', margin: '4px 0' }}>
+                    <strong style={{ color: '#ccc' }}>Filed by:</strong> {complaint.Filer.username}
                   </p>
                   {complaint.category && (
-                    <p className="text-sm text-gray-600">Category: {complaint.category}</p>
+                    <p style={{ color: '#999', fontSize: '14px', margin: '4px 0' }}>
+                      <strong style={{ color: '#ccc' }}>Category:</strong> {complaint.category}
+                    </p>
                   )}
                 </div>
-                <span className="text-xs text-gray-500">
+                <span style={{ color: '#666', fontSize: '13px' }}>
                   {new Date(complaint.created_at).toLocaleDateString()}
                 </span>
               </div>
 
-              <div className="mb-4">
-                <h3 className="font-semibold mb-2">Description:</h3>
-                <p className="text-gray-700">{complaint.description}</p>
+              <div style={{ marginBottom: '16px' }}>
+                <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                  Description:
+                </h3>
+                <p style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.6', margin: '0' }}>
+                  {complaint.description}
+                </p>
               </div>
 
               {complaint.evidence_url && (
-                <div className="mb-4">
-                  <h3 className="font-semibold mb-2">Evidence:</h3>
+                <div style={{ marginBottom: '16px' }}>
+                  <h3 style={{ color: '#fff', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                    Evidence:
+                  </h3>
                   <a
                     href={complaint.evidence_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                    style={{
+                      color: '#60a5fa',
+                      fontSize: '14px',
+                      textDecoration: 'none'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                    onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
                   >
                     {complaint.evidence_url}
                   </a>
@@ -176,46 +266,113 @@ export default function ManagerComplaintReview() {
               )}
 
               {complaint.is_disputed && complaint.dispute_notes && (
-                <div className="mb-4 p-3 bg-orange-50 border border-orange-200 rounded">
-                  <h3 className="font-semibold mb-2 text-orange-800">Dispute Notes:</h3>
-                  <p className="text-gray-700">{complaint.dispute_notes}</p>
+                <div style={{
+                  background: 'rgba(249, 115, 22, 0.1)',
+                  border: '1px solid rgba(249, 115, 22, 0.3)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  marginBottom: '16px'
+                }}>
+                  <h3 style={{ color: '#f97316', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
+                    Dispute Notes:
+                  </h3>
+                  <p style={{ color: '#ccc', fontSize: '14px', margin: '0' }}>
+                    {complaint.dispute_notes}
+                  </p>
                 </div>
               )}
 
               {reviewingId === complaint.complaint_id ? (
-                <div className="mt-4 p-4 bg-gray-50 rounded">
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                <div style={{
+                  marginTop: '20px',
+                  padding: '20px',
+                  background: 'rgba(255, 255, 255, 0.02)',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                }}>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      color: '#ccc',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       Decision
                     </label>
                     <select
                       value={decision}
                       onChange={(e) => setDecision(e.target.value as 'upheld' | 'dismissed')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        outline: 'none',
+                        cursor: 'pointer'
+                      }}
                     >
-                      <option value="upheld">Uphold</option>
-                      <option value="dismissed">Dismiss</option>
+                      <option value="upheld" style={{ background: '#1e293b' }}>Uphold</option>
+                      <option value="dismissed" style={{ background: '#1e293b' }}>Dismiss</option>
                     </select>
                   </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{
+                      display: 'block',
+                      marginBottom: '8px',
+                      color: '#ccc',
+                      fontSize: '13px',
+                      fontWeight: '500',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
                       Review Notes
                     </label>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
                       placeholder="Provide your reasoning..."
                       required
+                      style={{
+                        width: '100%',
+                        padding: '10px 14px',
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        border: '1px solid rgba(255, 255, 255, 0.12)',
+                        borderRadius: '8px',
+                        color: '#fff',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit',
+                        resize: 'vertical',
+                        outline: 'none'
+                      }}
                     />
                   </div>
 
-                  <div className="flex gap-2">
+                  <div style={{ display: 'flex', gap: '12px' }}>
                     <button
                       onClick={() => handleReview(complaint.complaint_id)}
-                      className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                      style={{
+                        flex: 1,
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
                       Submit Review
                     </button>
@@ -224,7 +381,26 @@ export default function ManagerComplaintReview() {
                         setReviewingId(null);
                         setNotes('');
                       }}
-                      className="flex-1 bg-gray-200 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-300"
+                      style={{
+                        flex: 1,
+                        background: 'rgba(255, 255, 255, 0.06)',
+                        color: '#999',
+                        border: 'none',
+                        padding: '12px 24px',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.06)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
                     >
                       Cancel
                     </button>
@@ -233,7 +409,20 @@ export default function ManagerComplaintReview() {
               ) : (
                 <button
                   onClick={() => setReviewingId(complaint.complaint_id)}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                  style={{
+                    width: '100%',
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                   Review This {complaint.complaint_type}
                 </button>
