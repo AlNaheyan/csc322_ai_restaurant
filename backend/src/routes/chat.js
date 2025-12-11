@@ -13,4 +13,17 @@ router.get('/articles/flagged', authenticate, authorize(['manager']), chatContro
 router.delete('/articles/:articleId', authenticate, authorize(['manager']), chatController.deleteArticle);
 router.post('/articles/:articleId/unflag', authenticate, authorize(['manager']), chatController.unflagArticle);
 
+router.post('/articles', authenticate, chatController.createArticle);
+router.get('/articles/my-articles', authenticate, chatController.getMyArticles);
+router.get('/articles/pending', authenticate, authorize(['manager']), chatController.getPendingArticles);
+router.get('/articles/:articleId', chatController.getArticleById);
+router.post('/articles/:articleId/approve', authenticate, authorize(['manager']), chatController.approveArticle);
+router.post('/articles/:articleId/reject', authenticate, authorize(['manager']), chatController.rejectArticle);
+router.put('/articles/:articleId', authenticate, chatController.updateArticle);
+
+router.get('/articles/:articleId/comments', chatController.getArticleComments);
+router.post('/articles/:articleId/comments', authenticate, chatController.createComment);
+router.put('/comments/:commentId', authenticate, chatController.updateComment);
+router.delete('/comments/:commentId', authenticate, chatController.deleteComment);
+
 module.exports = router;

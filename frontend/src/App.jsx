@@ -15,6 +15,10 @@ import DeliveryDashboardPage from './pages/DeliveryDashboardPage';
 import ManagerDashboardPage from './pages/ManagerDashboardPage';
 import ManagerComplaintReview from './pages/ManagerComplaintReview';
 import ManagerPerformanceReviewPage from './pages/ManagerPerformanceReviewPage';
+import ChatPage from './pages/ChatPage';
+import ManagerKBPage from './pages/ManagerKBPage';
+import ContributeKBPage from './pages/ContributeKBPage';
+import ArticlePage from './pages/ArticlePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { authService } from './services/authService';
@@ -95,6 +99,18 @@ function App() {
           <Route path="/manager/performance" element={
             <ProtectedRoute allowedRoles={['manager']}>
               <ManagerPerformanceReviewPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/kb/contribute" element={
+            <ProtectedRoute allowedRoles={['customer', 'vip', 'chef', 'delivery', 'manager']}>
+              <ContributeKBPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/kb/article/:articleId" element={<ArticlePage />} />
+          <Route path="/manager/kb" element={
+            <ProtectedRoute allowedRoles={['manager']}>
+              <ManagerKBPage />
             </ProtectedRoute>
           } />
         </Routes>

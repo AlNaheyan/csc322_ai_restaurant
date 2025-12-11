@@ -91,6 +91,132 @@ const unflagArticle = async (req, res) => {
   }
 };
 
+const createArticle = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const article = await chatService.createArticle(userId, req.body);
+    res.json({ success: true, data: article });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getMyArticles = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const articles = await chatService.getMyArticles(userId);
+    res.json({ success: true, data: articles });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getPendingArticles = async (req, res) => {
+  try {
+    const articles = await chatService.getPendingArticles();
+    res.json({ success: true, data: articles });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const approveArticle = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+    const article = await chatService.approveArticle(parseInt(articleId));
+    res.json({ success: true, data: article });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const rejectArticle = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+    const article = await chatService.rejectArticle(parseInt(articleId));
+    res.json({ success: true, data: article });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const updateArticle = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { articleId } = req.params;
+    const article = await chatService.updateArticle(userId, parseInt(articleId), req.body);
+    res.json({ success: true, data: article });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getArticleById = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+    const article = await chatService.getArticleById(parseInt(articleId));
+    res.json({ success: true, data: article });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const getArticleComments = async (req, res) => {
+  try {
+    const { articleId } = req.params;
+    const comments = await chatService.getArticleComments(parseInt(articleId));
+    res.json({ success: true, data: comments });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const createComment = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { articleId } = req.params;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Comment content is required' });
+    }
+
+    const comment = await chatService.createComment(userId, parseInt(articleId), content);
+    res.json({ success: true, data: comment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const updateComment = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { commentId } = req.params;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Comment content is required' });
+    }
+
+    const comment = await chatService.updateComment(userId, parseInt(commentId), content);
+    res.json({ success: true, data: comment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+const deleteComment = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { commentId } = req.params;
+    const isManager = req.user.role === 'manager';
+    const comment = await chatService.deleteComment(userId, parseInt(commentId), isManager);
+    res.json({ success: true, data: comment });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   createSession,
   endSession,
@@ -99,5 +225,16 @@ module.exports = {
   getSessionHistory,
   getFlaggedArticles,
   deleteArticle,
-  unflagArticle
+  unflagArticle,
+  createArticle,
+  getMyArticles,
+  getPendingArticles,
+  approveArticle,
+  rejectArticle,
+  updateArticle,
+  getArticleById,
+  getArticleComments,
+  createComment,
+  updateComment,
+  deleteComment
 };
